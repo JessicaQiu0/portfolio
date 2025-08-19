@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Biometric Sensor — Jessica Qiu</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <!-- Top Nav / Back -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <img src="../images/Professional.png" alt="Jessica Qiu headshot" class="avatar" />
+        <span>Biometric Sensor</span>
+      </div>
+      <nav>
+        <a class="btn" href="../index.html#projects">← Back to Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container" style="padding-top:32px">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Embedded Systems • Wearable Haptics</div>
+        <h2>Biometric Sensor for Tennis Athletes</h2>
+      </div>
+      <div class="row">
+        <!-- Optional: add a video/tutorial button here later -->
+        <!-- <a class="btn" href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" rel="noreferrer noopener">Video Walkthrough</a> -->
+      </div>
+    </div>
+
+    <div class="card">
+      <p>
+        A compact wearable that measures wrist acceleration and rotation during tennis swings, then provides
+        real-time haptic feedback when user-defined thresholds are met. The system combines an IMU, OLED UI with
+        rotary-encoder input, and a vibration motor driven by a microcontroller in a rechargeable enclosure. Users set
+        target ranges on-device and receive tactile cues to reinforce consistent swing mechanics.
+      </p>
+      <div class="row" style="margin-top:8px">
+        <span class="tag">Arduino Nano 33 IoT</span>
+        <span class="tag">MPU-6050 IMU</span>
+        <span class="tag">OLED 128×64</span>
+        <span class="tag">Rotary Encoder</span>
+        <span class="tag">Haptic Motor</span>
+        <span class="tag">Li-ion + Boost</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Overview / TOC -->
+  <section class="container">
+    <div class="grid" style="grid-template-columns: 1fr 2fr;">
+      <aside class="card">
+        <h3>Overview</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li><a href="#goals" class="card-link">Goals & Requirements</a></li>
+          <li><a href="#architecture" class="card-link">System Architecture</a></li>
+          <li><a href="#firmware" class="card-link">Firmware: Modes & Flow</a></li>
+          <li><a href="#implementation" class="card-link">Implementation Notes</a></li>
+          <li><a href="#code" class="card-link">Project Code</a></li>
+          <li><a href="#results" class="card-link">Results & Learnings</a></li>
+          <li><a href="#gallery" class="card-link">Gallery</a></li>
+        </ul>
+
+        <div style="margin-top:14px">
+          <h3>Role</h3>
+          <p style="margin-top:6px;color:var(--muted)">Firmware, UI, encoder handling, IMU tuning, wiring & test.</p>
+          <h3 style="margin-top:12px">Timeline</h3>
+          <p style="margin-top:6px;color:var(--muted)">Oct–Dec 2024</p>
+        </div>
+      </aside>
+
+      <div class="card">
+        <h3 id="goals">Goals & Requirements</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Measure wrist acceleration (m/s²) and rotation (°/s) reliably during swings.</li>
+          <li>On-device UI to set <em>low/high</em> thresholds for acceleration and rotation.</li>
+          <li>Real-time tactile feedback (vibration) when readings enter the target range.</li>
+          <li>Rechargeable power, compact housing, and robust wiring/soldering.</li>
+          <li>±5% accuracy target on measured values and threshold.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="container">
+    <div class="card">
+      <h3 id="architecture">System Architecture</h3>
+      <p>
+        The device integrates sensing, UI, and feedback in a simple loop: read IMU → update UI →
+        compare to thresholds → drive haptics. The wiring schematic couples an Arduino Nano 33 IoT to the
+        MPU-6050 over I²C, an OLED display, a rotary encoder (with pull-ups/debouncing), and a haptic motor
+        via a driver (transistor/MOSFET) and appropriate power stage.
+      </p>
+
+      <figure style="margin-top:14px">
+        <img src="../images/biometric_circuit.png" alt="Wiring schematic (combined)" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">
+          Wiring schematic combining IMU, OLED, rotary encoder, haptic driver, and power (Li-ion + boost).
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Firmware -->
+  <section class="container">
+    <div class="card">
+      <h3 id="firmware">Firmware: Modes & Control Flow</h3>
+      <p>
+        The UI follows a simple state machine navigated with a rotary encoder. Single press toggles which parameter
+        you’re editing (accel vs. gyro; lower vs. upper threshold). Rotating the encoder increases/decreases the selected
+        threshold; long press or double-press can switch modes (e.g., from live view to threshold set). The core loop
+        reads the IMU, calculates magnitudes, checks them against thresholds, and actuates the motor when in range
+        (or above/below depending on mode). The flow mirrors the code block diagram and flow chart logic:
+        encoder position &gt; 0 → increase threshold; &lt; 0 → decrease; display magnitudes & thresholds on OLED.
+      </p>
+
+      <figure style="margin-top:8px">
+        <div class="row two-up">
+            <img src="../images/biometric_flow1.png" alt="Flow chart 1" class="two-up-img" />
+            <img src="../images/biometric_flow2.png" alt="Flow chart 2" class="two-up-img" />
+        </div>
+
+        <figcaption style="color:var(--muted);margin-top:6px">
+          High-level code flow: initialize → input handling → display logic → threshold adjust → feedback loop.
+        </figcaption>
+      </figure>
+
+      <div class="grid" style="margin-top:12px">
+        <div class="card">
+          <h4>Encoder Handling</h4>
+          <ul style="margin:8px 0 0 18px">
+            <li>Rotate → increment/decrement current threshold (bounded range)</li>
+            <li>Single press → toggle <em>Accel/Gyro</em> or <em>Lower/Upper</em></li>
+            <li>Double/long press → switch mode (live vs. threshold set)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Display Logic</h4>
+          <ul style="margin:8px 0 0 18px">
+            <li>Live view of current magnitudes (Accel + Gyro)</li>
+            <li>Shows active thresholds and which one is selected</li>
+            <li>Optional: max values page for peak tracking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Implementation -->
+  <section class="container">
+    <div class="card">
+      <h3 id="implementation">Implementation Notes</h3>
+      <ul style="margin:8px 0 0 18px">
+        <li><strong>Ranges & Calibration:</strong> Accel up to ~8g and rotation up to ~1000 °/s set for tennis swings; calibrate with library helpers and sanity checks on idle readings.</li>
+        <li><strong>Threshold Logic:</strong> Lower/Upper bounds are clamped to sensible limits; lower ≤ upper enforced to avoid inverted ranges.</li>
+        <li><strong>Haptics Drive:</strong> Motor via transistor/MOSFET; optional PWM mapping to make feedback intensity proportional to magnitude.</li>
+        <li><strong>Power:</strong> 3.7V Li-ion with boost to 5V; consider battery cutoff and sleep/blank OLED on long press for savings.</li>
+        <li><strong>Robustness:</strong> Debounce encoder; guard against I²C glitches; ensure safe default thresholds on reset.</li>
+      </ul>
+
+      <figure style="margin-top:14px">
+        <img src="../images/biometric_block.png" alt="System block diagram" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">
+          Block diagram of UI, sensing, and feedback pipeline; encoder ↑/↓ adjusts thresholds, OLED shows current values.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Code -->
+  <section class="container">
+    <div class="card">
+      <h3 id="code">Project Code</h3>
+      <p>
+        Below is a structured outline of the firmware to make the flow and responsibilities explicit.
+      </p>
+
+      <h4>File Layout</h4>
+      <ul style="margin:8px 0 0 18px">
+        <li><code>Biometric_Sensor.ino</code> — setup, loop, state machine, and handlers (encoder, display, IMU, haptics).</li>
+      </ul>
+
+      <h4 style="margin-top:12px">Module Responsibilities</h4>
+      <ul style="margin:8px 0 0 18px">
+        <li><strong>initOLED()</strong>: splash, font, layout; pages: live, thresholds, max values.</li>
+        <li><strong>initIMU()</strong>: I²C init, range config (±8g, ±1000 °/s), calibration.</li>
+        <li><strong>readEncoder()</strong>: rotation steps, single/double/long press classification.</li>
+        <li><strong>updateThresholds()</strong>: clamp, enforce <em>lower ≤ upper</em>, persist in RAM/EEPROM (optional).</li>
+        <li><strong>readIMU()</strong>: accel/gyro vectors, magnitude calc, basic filtering if needed.</li>
+        <li><strong>driveHaptic(intensity)</strong>: digital/PWM output with minimum on-time to feel distinct pulses.</li>
+        <li><strong>renderUI()</strong>: draw current mode, metric, selected bound; highlight active field.</li>
+      </ul>
+
+      <details style="margin-top:12px">
+        <summary><strong>Show Full Arduino Code</strong></summary>
+        <pre style="white-space:pre-wrap"><code>
+            #include Adafruit_MPU6050.h
+            #include Adafruit_Sensor.h
+            #include Wire.h
+            #include U8g2lib.h // Include U8g2 library
+
+            Adafruit_MPU6050 mpu;
+
+            // Rotary encoder pins
+            #define clkPin 5
+            #define dtPin 4
+            #define swPin 3
+
+            // Initialize U8g2 for a 128x64 I2C OLED
+            U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0); // Change constructor if needed
+
+            // Variables for encoder and threshold adjustment
+            int currentStateClk;
+            int lastStateClk;
+            int currentScreen = 0; // 0 = Main Menu, 1 = Accel Threshold, 2 = Gyro Threshold, 3 = Max Values
+            bool adjustingLower = true; // Toggle between lower and upper threshold with single press
+            float accelThresholdLow = 0.0f; // Use 'f' for float
+            float accelThresholdHigh = 78.45f; // Use 'f' for float
+            float gyroThresholdLow = 0.0f; // Use 'f' for float
+            float gyroThresholdHigh = 1000.0f; // Use 'f' for float
+
+            // Variables to track maximum values
+            float maxAccelMagnitude = 0.0f;
+            float maxGyroMagnitude = 0.0f;
+
+            // Button press tracking
+            unsigned long lastPressTime = 0;
+            const unsigned long debounceDelay = 200; // Debounce delay
+            const unsigned long doublePressDelay = 500; // Max time between two presses for a double press
+            const unsigned long longHoldDelay = 2000; // Duration for long hold to turn off OLED
+            int pressCount = 0;
+            bool buttonPressed = false;
+            bool oledOn = false; // Track OLED state
+            unsigned long buttonPressStartTime = 0; // Track when button is pressed
+            bool isPaused = false; // Track whether the display is paused
+
+            void setup(void) {
+            pinMode(11, OUTPUT); // Set pin 11 as output for haptic feedback
+            Serial.begin(115200);
+
+            // Initialize U8g2
+            u8g2.begin();
+            u8g2.setPowerSave(1); // Turn off the OLED display initially
+
+            // MPU6050 setup
+            if (!mpu.begin()) {
+                Serial.println("Failed to find MPU6050 chip");
+                while (1) { delay(10); }
+            }
+            Serial.println("MPU6050 Found!");
+
+            // Rotary encoder setup
+            pinMode(clkPin, INPUT);
+            pinMode(dtPin, INPUT);
+            pinMode(swPin, INPUT_PULLUP); // Button switch
+
+            lastStateClk = digitalRead(clkPin);
+            }
+
+            void loop() {
+            // Read MPU6050 sensor data
+            sensors_event_t accelEvent, gyroEvent, tempEvent;
+            mpu.getEvent(&accelEvent, &gyroEvent, &tempEvent);
+
+            // Calculate magnitudes
+            float accelMagnitude = sqrt(accelEvent.acceleration.x * accelEvent.acceleration.x +
+                                        accelEvent.acceleration.y * accelEvent.acceleration.y +
+                                        accelEvent.acceleration.z * accelEvent.acceleration.z);
+            float gyroMagnitude = sqrt(gyroEvent.gyro.x * gyroEvent.gyro.x +
+                                        gyroEvent.gyro.y * gyroEvent.gyro.y +
+                                        gyroEvent.gyro.z * gyroEvent.gyro.z) * (180.0f / PI); // Convert to degrees, use 'f'
+
+            // Update maximum values if new readings are higher
+            if (accelMagnitude > maxAccelMagnitude) {
+                maxAccelMagnitude = accelMagnitude;
+            }
+            if (gyroMagnitude > maxGyroMagnitude) {
+                maxGyroMagnitude = gyroMagnitude;
+            }
+
+            // Handle Rotary Encoder Rotation (only process on the falling edge)
+            currentStateClk = digitalRead(clkPin);
+            if (currentStateClk == LOW && lastStateClk == HIGH) {  // Detect falling edge
+                // Determine the direction of rotation
+                if (digitalRead(dtPin) != currentStateClk) {
+                // Clockwise rotation
+                adjustThresholds(true);  // True means increase
+                } else {
+                // Counter-clockwise rotation
+                adjustThresholds(false); // False means decrease
+                }
+            }
+            lastStateClk = currentStateClk;  // Update the state of the CLK pin
+
+            // Handle Button Press
+            if (digitalRead(swPin) == LOW) {
+                if (!buttonPressed) {
+                // Button was just pressed
+                buttonPressStartTime = millis(); // Record when the button was pressed
+                buttonPressed = true;
+
+                // Turn on OLED on first button press
+                if (!oledOn) {
+                    u8g2.setPowerSave(0); // Turn on the OLED display
+                    oledOn = true; // Update OLED state
+                }
+                } else {
+                // If button is already pressed, check the duration
+                if (millis() - buttonPressStartTime > longHoldDelay && oledOn) {
+                    // If held long enough, turn off OLED
+                    u8g2.setPowerSave(1); // Turn off the OLED display
+                    oledOn = false; // Update OLED state
+                }
+                }
+            } else {
+                // Button released
+                if (buttonPressed) {
+                unsigned long currentTime = millis();
+                if (currentTime - lastPressTime > debounceDelay) {
+                    pressCount++;
+                    lastPressTime = currentTime;
+                }
+                }
+                buttonPressed = false; // Reset pressed state
+            }
+
+            // Check for single or double press
+            if (pressCount > 0 && millis() - lastPressTime > doublePressDelay) {
+                if (pressCount == 1) {
+                // Single press: Switch between lower and upper threshold adjustment
+                adjustingLower = !adjustingLower;
+                Serial.println(adjustingLower ? "Adjusting Lower Threshold" : "Adjusting Upper Threshold");
+                } else if (pressCount == 2) {
+                // Double press: Handle switching between screens
+                if (currentScreen == 0) {
+                    // From Main Menu, go to Accel Threshold
+                    currentScreen = 1;
+                    Serial.println("Switching to Acceleration Thresholds");
+                } else if (currentScreen == 1) {
+                    // From Accel Threshold, go to Gyro Threshold
+                    currentScreen = 2;
+                    Serial.println("Switching to Gyroscope Thresholds");
+                } else if (currentScreen == 2) {
+                    // From Gyro Threshold, go to Max Values
+                    currentScreen = 3;
+                    Serial.println("Switching to Max Values Screen");
+                } else {
+                    // From Max Values, return to Main Menu
+                    currentScreen = 0;
+                    Serial.println("Returning to Main Menu");
+                }
+                }
+                // Reset press count
+                pressCount = 0;
+            }
+
+            // Pause/Unpause the display based on threshold range
+            if (currentScreen == 0) {  // Only pause in the Main Menu
+                if ((accelMagnitude < accelThresholdLow || accelMagnitude > accelThresholdHigh) ||
+                    (gyroMagnitude < gyroThresholdLow || gyroMagnitude > gyroThresholdHigh)) {
+                if (!isPaused) {
+                    isPaused = true;
+                    Serial.println("Display Paused");
+                }
+                } else {
+                if (isPaused) {
+                    isPaused = false;
+                    Serial.println("Display Unpaused");
+                }
+                }
+            }
+
+            // Only print and update display if not paused in the Main Menu
+            if (!isPaused) {
+                // Print out only magnitudes at intervals
+                static unsigned long lastPrintTime = 0;
+                if (millis() - lastPrintTime > 1000) { // Print every second
+                lastPrintTime = millis();
+                Serial.print("Accel Magnitude: ");
+                Serial.print(accelMagnitude, 2); // Print with 2 decimal places
+                Serial.print(" m/s^2 | Gyro Magnitude: ");
+                Serial.print(gyroMagnitude, 2);   // Print with 2 decimal places
+                Serial.println(" °/s");
+
+                // Update the OLED display based on the current screen
+                if (oledOn) { // Only update if OLED is on
+                    if (currentScreen == 0) {
+                    displayMagnitude(accelMagnitude, gyroMagnitude);
+                    } else if (currentScreen == 1) {
+                    displayAccelThresholds();
+                    } else if (currentScreen == 2) {
+                    displayGyroThresholds();
+                    } else if (currentScreen == 3) {
+                    displayMaxValues();
+                    }
+
+                    // Trigger haptic feedback if within threshold ranges
+                    if ((accelMagnitude >= accelThresholdLow && accelMagnitude <= accelThresholdHigh) &&
+                        (gyroMagnitude >= gyroThresholdLow && gyroMagnitude <= gyroThresholdHigh)) {
+                    digitalWrite(11, HIGH); // Activate haptic feedback
+                    delay(100); // Buzz for 100ms
+                    digitalWrite(11, LOW); // Deactivate haptic feedback
+                }
+                }
+                }
+            }
+            }
+
+
+            void displayMagnitude(float accelMagnitude, float gyroMagnitude) {
+            u8g2.clearBuffer(); // Clear the internal memory
+            u8g2.setFont(u8g2_font_7x13_tr); // Use a smaller font
+
+            // Display mode and magnitudes
+            u8g2.setCursor(0, 10);
+            u8g2.print("Main Menu");
+
+            u8g2.setCursor(0, 30);
+            u8g2.print("Accel: ");
+            u8g2.print(accelMagnitude, 2); // Print with 2 decimal places
+            u8g2.print(" m/s^2");
+
+            u8g2.setCursor(0, 50);
+            u8g2.print("Rotation: ");
+            u8g2.print(gyroMagnitude, 2);   // Print with 2 decimal places
+            u8g2.print(" °/s");
+
+            u8g2.sendBuffer(); // Transfer internal memory to the display
+            }
+
+            void displayAccelThresholds() {
+            u8g2.clearBuffer(); // Clear the internal memory
+            u8g2.setFont(u8g2_font_7x13_tr); // Use a smaller font
+
+            // Display mode and thresholds
+            u8g2.setCursor(0, 10);
+            u8g2.print("Accel Input Range");
+
+            u8g2.setCursor(0, 30);
+            u8g2.print("Lower: ");
+            u8g2.print(accelThresholdLow, 2); // Print with 2 decimal places
+            u8g2.print(" m/s^2");
+
+            u8g2.setCursor(0, 50);
+            u8g2.print("Upper: ");
+            u8g2.print(accelThresholdHigh, 2); // Print with 2 decimal places
+            u8g2.print(" m/s^2");
+
+            u8g2.sendBuffer(); // Transfer internal memory to the display
+            }
+
+            void displayGyroThresholds() {
+            u8g2.clearBuffer(); // Clear the internal memory
+            u8g2.setFont(u8g2_font_7x13_tr); // Use a smaller font
+
+            // Display mode and thresholds
+            u8g2.setCursor(0, 10);
+            u8g2.print("Rotation Input Range");
+
+            u8g2.setCursor(0, 30);
+            u8g2.print("Lower: ");
+            u8g2.print(gyroThresholdLow, 2); // Print with 2 decimal places
+            u8g2.print(" °/s");
+
+            u8g2.setCursor(0, 50);
+            u8g2.print("Upper: ");
+            u8g2.print(gyroThresholdHigh, 2); // Print with 2 decimal places
+            u8g2.print(" °/s");
+
+            u8g2.sendBuffer(); // Transfer internal memory to the display
+            }
+
+            void displayMaxValues() {
+            u8g2.clearBuffer(); // Clear the internal memory
+            u8g2.setFont(u8g2_font_7x13_tr); // Use a smaller font
+
+            // Display maximum values
+            u8g2.setCursor(0, 10);
+            u8g2.print("Max Values");
+
+            u8g2.setCursor(0, 30);
+            u8g2.print("Max Accel: ");
+            u8g2.print(maxAccelMagnitude, 2); // Print with 2 decimal places
+            u8g2.print(" m/s^2");
+
+            u8g2.setCursor(0, 50);
+            u8g2.print("Max Gyro: ");
+            u8g2.print(maxGyroMagnitude, 2);   // Print with 2 decimal places
+            u8g2.print(" °/s");
+
+            u8g2.sendBuffer(); // Transfer internal memory to the display
+            }
+
+            void adjustThresholds(bool increase) {
+            if (currentScreen == 1) { // Acceleration Threshold screen
+                if (adjustingLower) {
+                accelThresholdLow += increase ? 1.0f : -1.0f; // Increment or decrement lower threshold
+                } else {
+                accelThresholdHigh += increase ? 1.0f : -1.0f; // Increment or decrement upper threshold
+                }
+            } else if (currentScreen == 2) { // Gyroscope Threshold screen
+                if (adjustingLower) {
+                gyroThresholdLow += increase ? 1.0f : -1.0f; // Increment or decrement lower threshold
+                } else {
+                gyroThresholdHigh += increase ? 1.0f : -1.0f; // Increment or decrement upper threshold
+                }
+            }
+
+            // Ensure thresholds stay within valid ranges
+            if (currentScreen == 1) {
+                accelThresholdLow = constrain(accelThresholdLow, 0.0f, accelThresholdHigh); // Make sure low <= high
+                accelThresholdHigh = constrain(accelThresholdHigh, accelThresholdLow, 78.45f); // Limit high
+            } else if (currentScreen == 2) {
+                gyroThresholdLow = constrain(gyroThresholdLow, 0.0f, gyroThresholdHigh); // Make sure low <= high
+                gyroThresholdHigh = constrain(gyroThresholdHigh, gyroThresholdLow, 1000.0f); // Limit high
+            }
+            }
+</code></pre>
+      </details>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="container">
+    <div class="grid">
+      <div class="card">
+        <h3 id="results">Results & Learnings</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Meets core objective: in-range vibration cues aligned to user goals improve practice consistency.</li>
+          <li>Housing, wiring, and UI refined through iterations (encoder-first UX works well during motion).</li>
+          <li>Future: custom PCB to reduce bulk; add battery management; optional BLE logging.</li>
+        </ul>
+
+        <!-- Optional video/tutorial link -->
+        <!-- <p style="margin-top:10px">🎥 Watch the <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" rel="noreferrer noopener">YouTube walkthrough</a>.</p> -->
+      </div>
+
+      <div class="card">
+        <h3>Bill of Materials (excerpt)</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Arduino Nano 33 IoT, MPU-6050 IMU, OLED 128×64</li>
+          <li>Rotary encoder, vibration motor + driver, Li-ion + boost</li>
+          <li>Perfboard wiring, enclosure + strap (3D/CAD iterations)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEW: Full Report (PDF) -->
+  <section class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Report</div>
+        <h2 id="report">Full Report (PDF)</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>You can read the full write-up with specifications, design decisions, and testing notes.</p>
+      <div class="row" style="margin-top:8px">
+        <!-- Put the PDFs at: /docs/ek210_final_report.pdf and /docs/final_presentation_210.pdf -->
+        <a class="btn" href="../images/ek210_final_report.pdf" target="_blank" rel="noreferrer noopener">View Report (PDF)</a>
+      </div>
+
+      <!-- Inline PDF viewer (optional). If you prefer link-only, remove this iframe. -->
+      <div style="margin-top:12px">
+        <iframe
+          src="../images/ek210_final_report.pdf#view=FitH"
+          title="EK210 Final Report"
+          style="width:100%; height:600px; border:none; border-radius:12px;"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Screenshots</div>
+        <h2 id="gallery">Gallery</h2>
+      </div>
+    </div>
+    <div class="grid">
+      <figure class="card">
+        <img src="../images/biometric_ui.png" alt="OLED UI live view" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">OLED live view showing acceleration/rotation magnitudes and thresholds.</figcaption>
+      </figure>
+      <figure class="card">
+        <img src="../images/biometric_prototype.png" alt="Prototype photo" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">Prototype assembly with IMU, encoder, and haptic driver wired to the Nano.</figcaption>
+      </figure>
+      <figure class="card">
+        <img src="../images/biometric_CAD.png" alt="Enclosure CAD" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">Compact enclosure and strap concept designed for on-court use.</figcaption>
+      </figure>
+      <figure class="card">
+        <a class="card-link" href="https://www.youtube.com/watch?v=IMdCrdoCRqc&ab_channel=JessicaQiu" target="_blank" rel="noreferrer noopener">
+          <img src="../images/biometric_thumb.png" alt="Device demo video (YouTube)" style="width:100%;border-radius:12px" />
+        </a>
+        <figcaption style="color:var(--muted);margin-top:6px">
+          Device demo: acceleration/rotation thresholds with haptic feedback (YouTube).
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> Jessica Qiu • Built for GitHub Pages</div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

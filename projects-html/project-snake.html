@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FPGA + VGA Snake — Jessica Qiu</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <!-- Top Nav / Back -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <img src="../images/Professional.png" alt="Jessica Qiu headshot" class="avatar" />
+        <span>FPGA + VGA Snake</span>
+      </div>
+      <nav>
+        <a class="btn" href="../index.html#projects">← Back to Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container" style="padding-top:32px">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Digital Design • Hardware + RTL</div>
+        <h2>Snake Game on FPGA with VGA Output</h2>
+      </div>
+      <div class="row">
+        <a class="btn" href="https://github.com/vkang6378/EC311_project" target="_blank" rel="noreferrer noopener">GitHub Repo</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>
+        My team and I implemented a classic Snake game on an FPGA, driving a monitor via VGA. The system handles
+        real-time input, rendering, game logic, and scorekeeping in Verilog. The design emphasizes clean
+        module boundaries (timing, input, game state, renderer) and stable 60 Hz video output.
+      </p>
+      <div class="row" style="margin-top:8px">
+        <span class="tag">Verilog</span>
+        <span class="tag">FPGA</span>
+        <span class="tag">VGA (640×480 @ 60 Hz)</span>
+        <span class="tag">Finite State Machines</span>
+        <span class="tag">Debouncing</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Overview / TOC -->
+  <section class="container">
+    <div class="grid" style="grid-template-columns: 1fr 2fr;">
+      <aside class="card">
+        <h3>Overview</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li><a href="#goals" class="card-link">Goals & Requirements</a></li>
+          <li><a href="#architecture" class="card-link">System Architecture</a></li>
+          <li><a href="#features" class="card-link">Key Features</a></li>
+          <li><a href="#implementation" class="card-link">Implementation Notes</a></li>
+          <li><a href="#results" class="card-link">Results & Learnings</a></li>
+          <li><a href="#gallery" class="card-link">Gallery</a></li>
+        </ul>
+
+        <div style="margin-top:14px">
+          <h3>Role</h3>
+          <p style="margin-top:6px;color:var(--muted)">RTL design, timing, input handling, testing.</p>
+          <h3 style="margin-top:12px">Timeline</h3>
+          <p style="margin-top:6px;color:var(--muted)">Nov–Dec 2024</p>
+        </div>
+      </aside>
+
+      <div class="card">
+        <h3 id="goals">Goals & Requirements</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Render stable VGA frames at 640×480 @ 60 Hz with proper HSYNC/VSYNC timing.</li>
+          <li>Deterministic game loop: input → update → render per frame.</li>
+          <li>Snake movement, food spawning, growth on eat, and collision detection.</li>
+          <li>Score tracking and difficulty/speed scaling.</li>
+          <li>Glitch-free button input (debounced) and reset behavior.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="container">
+    <div class="card">
+      <h3 id="architecture">System Architecture</h3>
+      <p>The design is split into small, testable modules:</p>
+      <ul style="margin:8px 0 0 18px">
+        <li><strong>Clock & Timing:</strong> pixel clock generator; VGA timing (HSYNC/VSYNC, hcount/vcount, blanking).</li>
+        <li><strong>Input:</strong> button/joystick interface with synchronous debouncing and edge detection.</li>
+        <li><strong>Game State (FSM):</strong> idle → play → game-over; position FIFO for snake segments; RNG/LCG for food.</li>
+        <li><strong>Renderer:</strong> color mux based on snake/food/background layers; optional score overlay.</li>
+        <li><strong>Speed Control:</strong> tick divider to advance snake at level-dependent intervals.</li>
+      </ul>
+
+      <!-- Placeholder system diagram -->
+      <figure style="margin:14px 0 0">
+        <img src="../images/snake_block_diagram.png" alt="Block diagram (placeholder)" style="width:100%;border-radius:12px;opacity:.95" />
+        <figcaption style="color:var(--muted);margin-top:6px">Block diagram illustrating VGA controller, FSM-based game logic, and renderer pipeline.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="container">
+    <div class="grid">
+      <div class="card">
+        <h3 id="features">Key Features</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>VGA controller supporting 640×480 @ 60 Hz (800×525 total timing).</li>
+          <li>Parametric grid size and snake length cap.</li>
+          <li>Difficulty tiers tied to score; speed ramps up over time.</li>
+          <li>Clean reset to known state; reproducible game start.</li>
+          <li>Optional pause and border-wrap or wall-collision modes (toggle at build-time).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Tech Highlights</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Single-clock, synchronous logic; no inferred latches.</li>
+          <li>Two-process FSM style (sequential + combinational) for clarity.</li>
+          <li>RNG via Linear Congruential Generator seeded at reset.</li>
+          <li>Memory-efficient segment storage (circular buffer / FIFO pattern).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Implementation -->
+  <section class="container">
+    <div class="card">
+      <h3 id="implementation">Implementation Notes</h3>
+      <ul style="margin:8px 0 0 18px">
+        <li><strong>Timing:</strong> Pixel clock derived from board clock (e.g., 25.175 MHz or nearest achievable). HSYNC/VSYNC and porch intervals meet VESA spec.</li>
+        <li><strong>Coordinate Map:</strong> (hcount, vcount) → board cell via integer division to avoid multipliers.</li>
+        <li><strong>Collision:</strong> next-head vs walls/segments; enter game-over state on hit; update score on eat.</li>
+        <li><strong>Rendering:</strong> priority: snake &gt; food &gt; background; simple 3-color palette for crisp pixels.</li>
+        <li><strong>Testing:</strong> sim benches for VGA timing and FSM transitions; on-board LEDs for quick debug.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="container">
+    <div class="grid">
+      <div class="card">
+        <h3 id="results">Results & Learnings</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Stable 60 Hz output verified on external monitor; no tearing/flicker within porch margins.</li>
+          <li>Deterministic movement cadence and smooth difficulty scaling.</li>
+          <li>Takeaway: small composable modules + strict timing discipline = faster bring-up.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>What I’d Improve Next</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li>Sprite ROM and font overlay for UI and score.</li>
+          <li>Double-buffered grid for more complex animations.</li>
+          <li>Audio beeps via PWM/DAC on food and collisions.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Screenshots + Video</div>
+        <h2 id="gallery">Gallery</h2>
+      </div>
+    </div>
+    <div class="grid">
+      <figure class="card">
+        <img src="../images/snake_start.png" alt="Title screen (placeholder)" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">FPGA board output at startup — game initializes to level: easy, medium, hard.</figcaption>
+      </figure>
+      <figure class="card">
+        <img src="../images/snake_play.png" alt="Gameplay (placeholder)" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">Gameplay frame - snake grows after eating food; score increments on FPGA Board.</figcaption>
+      </figure>
+      <figure class="card">
+        <img src="../images/snake_FPGA.png" alt="Board overlay (placeholder)" style="width:100%;border-radius:12px" />
+        <figcaption style="color:var(--muted);margin-top:6px">Physical FPGA setup connected to monitor for VGA output testing.</figcaption>
+      </figure>
+      <figure class="card">
+        <a href="https://www.youtube.com/watch?v=4XBGjpF0j7E&ab_channel=XiaoxiaoYang" target="_blank" rel="noreferrer noopener">
+          <img src="../images/snake_video.png" alt="YouTube walkthrough" style="width:100%;border-radius:12px" />
+        </a>
+        <figcaption style="color:var(--muted);margin-top:6px">Video walkthrough of design, code, and FPGA demo.</figcaption>
+      </figure>
+    </div>
+
+  </section>
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> Jessica Qiu • Built for GitHub Pages</div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

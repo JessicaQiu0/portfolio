@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EK301 Warren Truss — Jessica Qiu</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <!-- Top Nav / Back -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <img src="../images/Professional.png" alt="Jessica Qiu headshot" class="avatar" />
+        <span>EK301 Warren Truss</span>
+      </div>
+      <nav>
+        <a class="btn" href="../index.html#projects">← Back to Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container" style="padding-top:32px">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Mechanics • Structural Analysis</div>
+        <h2>Warren Truss Design</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>Designed an acrylic Warren truss and analyzed member forces and buckling using a MATLAB workflow. The final design prioritized robust load capacity and safety margin over cost efficiency. We modeled force distributions, applied an uncertainty band from class data, and iterated geometry (including a 1″ roller elevation) before fabrication and test. Predicted max load: ~65 oz ± 1.35 oz; cost: $209.91; load-to-cost: 0.310 oz/$.
+      </p>
+      <div class="row" style="margin-top:8px">
+        <span class="tag">MATLAB</span>
+        <span class="tag">Buckling</span>
+        <span class="tag">Truss Design</span>
+        <span class="tag">Structural Analysis</span>
+        <span class="tag">Mechanics</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Overview / TOC -->
+  <section class="container">
+    <div class="grid" style="grid-template-columns: 1fr 2fr;">
+      <aside class="card">
+        <h3>Overview</h3>
+        <ul style="margin:8px 0 0 18px">
+          <li><a href="#buckling" class="card-link">1. Buckling Characterization (Lab)</a></li>
+          <li><a href="#prelim" class="card-link">2. Preliminary Design</a></li>
+          <li><a href="#final" class="card-link">3. Final Design</a></li>
+          <li><a href="#reports" class="card-link">Full Reports (PDF)</a></li>
+          <li><a href="#code" class="card-link">Code & Data</a></li>
+          <li><a href="#results" class="card-link">Results & Learnings</a></li>
+        </ul>
+
+        <div style="margin-top:14px">
+          <h3>Role</h3>
+          <p style="margin-top:6px;color:var(--muted)">Analysis, MATLAB tooling, fabrication, test.</p>
+          <h3 style="margin-top:12px">Timeline</h3>
+          <p style="margin-top:6px;color:var(--muted)">Feburary - May 2025</p>
+        </div>
+      </aside>
+
+      <!-- Buckling -->
+      <div class="card">
+        <h3 id="buckling">1. Buckling Characterization (Lab)</h3>
+        <p>
+          Goal: quantify the critical buckling load <em>P<sub>crit</sub></em> for acrylic strips (simply supported,
+          axial compression) as a function of member length, to use as the compression limit in design. I cut
+          strips to 8.5, 10, 12, and 14 inches, then ran nine trials at each length using a digital scale to record
+          the peak load at buckling (tare → apply axial force → capture peak).
+        </p>
+        <ul style="margin:8px 0 0 18px">
+          <li>Measured average <em>P<sub>crit</sub></em> decreased with length; best-fit line:
+              <code>Pcrit(L) = −5.510·L + 101.1</code> (oz).</li>
+          <li>Fit error (avg. vertical deviation) ≈ <strong>4.90 oz</strong>, comparable to per-length stdevs
+              (0.61–5.52 oz) → use fit error to set conservative margins.</li>
+          <li>Shorter samples showed wider spread (more sensitive to prep/alignment); longer samples were steadier.</li>
+        </ul>
+        <p style="margin-top:8px">
+          Takeaway: buckling capacity drops with member length and has non-trivial scatter. I used the lab fit for early
+          checks and also referenced the class-wide buckling uncertainty (±1.35 oz at 95%) adopted later in the design phase.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preliminary -->
+  <section class="container">
+    <div class="card">
+      <h3 id="prelim">2. Preliminary Design</h3>
+      <p>
+        Constraints: span <strong>31 in</strong>; load placed <strong>8.5–12 in</strong> from the pin; each member length within
+        <strong>8.5–14 in</strong>. Cost model: <strong>$10/joint</strong> + <strong>$1 per inch</strong> of total member length, with a target budget
+        under $315. I wrote MATLAB to build the connectivity matrix, support matrices, and global equilibrium
+        system; solve member forces; classify tension vs. compression; and predict failure when any compression
+        member’s force exceeds its buckling capacity.
+      </p>
+
+      <div class="grid" style="grid-template-columns: repeat(2, 1fr); margin-top:12px">
+        <div class="card">
+          <h4>Design 1 (7-joint Warren)</h4>
+          <ul style="margin:8px 0 0 18px">
+            <li>Predicted failure load: <strong>~50 oz ± 1.35 oz</strong> (buckles at Member 8).</li>
+            <li>Reactions: Sx₁ = 0.00 oz; Sy₁ ≈ 34.68 oz; Sy₂ ≈ 15.32 oz.</li>
+            <li>Cost: <strong>$177.53</strong> → Load/Cost: <strong>0.282 oz/$</strong>.</li>
+          </ul>
+          <p style="margin-top:6px;color:var(--muted)">
+            Efficient and cost-effective, but risk concentrated in a short compression member.
+          </p>
+        </div>
+
+        <div class="card">
+          <h4>Design 2 (alternate geometry)</h4>
+          <ul style="margin:8px 0 0 18px">
+            <li>Predicted failure load: <strong>~51 oz ± 1.35 oz</strong> (first to buckle: Member 2).</li>
+            <li>Reactions: Sx₁ = 0.00 oz; Sy₁ ≈ 25.50 oz; Sy₂ ≈ 25.50 oz.</li>
+            <li>Cost: <strong>$216.51</strong> → Load/Cost: <strong>0.236 oz/$</strong>.</li>
+          </ul>
+          <p style="margin-top:6px;color:var(--muted)">
+            Similar capacity at higher cost, with several near-zero-force members (inefficient).
+          </p>
+        </div>
+      </div>
+
+      <p style="margin-top:8px">
+        Decision: carry forward Design 1 and adjust geometry to distribute compression better and align with updated specs.
+      </p>
+    </div>
+  </section>
+
+  <!-- Final -->
+  <section class="container">
+    <div class="card">
+      <h3 id="final">3. Final Design</h3>
+      <p>
+        We upgraded to an 8-joint Warren truss and raised the roller support by <strong>1 inch</strong> above the pin to meet
+        the revised spec, then re-solved member forces and buckling checks. For final capacity we used the course
+        buckling model <code>P<sub>crit</sub> = 2390 · L<sup>−1.811</sup></code> and swept load until the first compression member hit its limit.
+      </p>
+      <ul style="margin:8px 0 0 18px">
+        <li>Predicted failure load: <strong>~65 oz ± 1.35 oz</strong> (first to buckle: Member 1).</li>
+        <li>Reactions: Sx₁ = 0.00 oz; Sy₁ ≈ 43.40 oz; Sy₂ ≈ 21.60 oz.</li>
+        <li>Cost: <strong>$209.91</strong> → Load/Cost: <strong>0.310 oz/$</strong>.</li>
+      </ul>
+      <p style="margin-top:8px">
+        Rationale: we deliberately prioritized <em>robust capacity</em> over peak cost-efficiency to sit well above the 32 oz
+        requirement, acknowledging build uncertainties (tape joints, hand cuts, alignment).
+      </p>
+    </div>
+  </section>
+
+  <!-- Reports -->
+  <section class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Reports</div>
+        <h2 id="reports">Full Reports (PDF)</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>Open any phase to see full write-ups, data tables, and calculations.</p>
+      <div class="row" style="margin-top:8px">
+        <a class="btn" href="../images/buckling_lab_report.pdf" target="_blank" rel="noreferrer noopener">Buckling Lab</a>
+        <a class="btn" href="../images/preliminary_design_report.pdf" target="_blank" rel="noreferrer noopener">Preliminary Report</a>
+        <a class="btn" href="../images/final_design_report.pdf" target="_blank" rel="noreferrer noopener">Final Report</a>
+      </div>
+
+      <!-- Optional inline viewer (final report) -->
+      <div style="margin-top:12px">
+        <iframe
+          src="../images/buckling_lab_report.pdf"
+          title="EK301 Final Design Report"
+          style="width:100%; height:600px; border:none; border-radius:12px;"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code & Data -->
+  <section class="container">
+    <div class="card">
+      <h3 id="code">Code & Data</h3>
+      <p>
+        MATLAB workflow: define joints and connectivity → assemble equilibrium (2J eqns) →
+        solve axial forces → classify T/C → compute buckling capacities → increment applied load
+        until any compression member exceeds <em>P<sub>crit</sub></em> → report failure load, failing member,
+        reactions, cost, and load-to-cost ratio.
+      </p>
+
+      <details style="margin-top:12px">
+        <summary><strong>Show MATLAB Script</strong></summary>
+        <pre style="white-space:pre-wrap"><code>
+            %% Hardcoded Inputs for Warren Truss with 7 Joints
+numj = 7;
+numm = (2 * numj) - 3;
+
+%% Connection matrix C for joints (Warren truss pattern)
+C = [
+    1 0 0 0 0 0 1 0 0 0 0;  % Joint 1
+    1 1 0 0 0 0 0 1 0 0 0;  % Joint 2
+    0 1 1 0 0 0 1 0 1 0 0;  % Joint 3
+    0 0 1 1 0 0 0 1 0 1 0;  % Joint 4 (center joint)
+    0 0 0 1 1 0 0 0 1 0 1;  % Joint 5
+    0 0 0 0 1 1 0 0 0 1 0;  % Joint 6
+    0 0 0 0 0 1 0 0 0 0 1   % Joint 7
+];
+
+%% Support reaction forces (pin at Joint 1, roller at Joint 7)
+Sx1 = [1;0;0;0;0;0;0];
+Sy1 = [1;0;0;0;0;0;0];
+Sy2 = [0;0;0;0;0;0;1];
+
+Sx = [Sx1, zeros(numj,1), zeros(numj,1)];
+Sy = [zeros(numj,1), Sy1, Sy2];
+S = [Sx;Sy];
+
+%% Joint locations (31 in. span with alternating heights)
+X = [0; 4.75; 9.5; 14.25; 19.0; 24.0; 31.0];
+Y = [0; 8; 0; 8; 0; 8; 0];
+
+%% Loads (50 oz load applied at center joint, Joint 3)
+L = zeros(2*numj,1);
+L(numj+3) = 50; % Downward load at joint 3 (vertical)
+
+%% Member Lengths
+R = zeros(numm, 1);
+for i = 1:numm
+    joints = zeros(1,2);
+    for j = 1:numj
+        if C(j,i) == 1
+            if joints(1) == 0
+                joints(1) = j;
+            else
+                joints(2) = j;
+            end
+        end
+    end
+    if joints(2) == 0
+        error("Member %d only connected to one joint — check connection matrix C!", i);
+    end
+    X_joint1 = X(joints(1));
+    Y_joint1 = Y(joints(1));
+    X_joint2 = X(joints(2));
+    Y_joint2 = Y(joints(2));
+    R(i) = sqrt((X_joint2 - X_joint1)^2 + (Y_joint2 - Y_joint1)^2);
+end
+
+%% Initialize matrix A
+A = zeros(2 * numj, numm);
+for m = 1:numm
+    connected_joints = find(C(:, m) == 1);
+    joint1 = connected_joints(1);
+    joint2 = connected_joints(2);
+    dx = X(joint2) - X(joint1);
+    dy = Y(joint2) - Y(joint1);
+    length = sqrt(dx^2 + dy^2);
+    R(m) = length;
+    A(joint1, m) = dx / length;
+    A(joint2, m) = -dx / length;
+    A(joint1 + numj, m) = dy / length;
+    A(joint2 + numj, m) = -dy / length;
+end
+
+A = [A,S];
+
+% Display matrix A
+disp('Matrix A:');
+disp(A);
+
+%% Solve for Forces
+T = A \ L;
+%% Buckling calculations
+max_buckling = zeros(numm, 1);
+for i = 1:numm
+    max_buckling(i) = 2390 * R(i)^(-1.811);
+end
+
+% Theoretical max load calculation
+[maxload, ind] = max(L);
+Q = 1;
+mass = 0;
+breakload = 0;
+
+while Q == 1
+    mass = mass + 1;
+    L(ind) = mass;
+    T_crit = A \ L;
+    for mm = 1:numm
+        if abs(T_crit(mm)) > max_buckling(mm)
+            Q = 0;
+            breakload = mm;
+        else
+            max_th_load = max(L);
+        end
+    end
+end
+
+%% Uncertainty (based on class average)
+U_fit = 1.35;  % oz
+buckling_strength = max_buckling(breakload);
+buckling_length = R(breakload);
+uncertainty_max_load = U_fit;
+
+%% Failure analysis
+load = max(L);
+for i = 1:numm
+    rr(i) = load / T_crit(i);
+    P_load(i) = (2390) * R(i)^(-1.811);
+    W_fail(i) = -P_load(i) / rr(i);
+end
+Wfail = min(W_fail);
+
+%% Cost and efficiency
+totallength = sum(R);
+C1 = numj * 10;
+C2 = totallength * 1;
+Cost = C1 + C2;
+
+%% Print Results
+fprintf("\nEK301, Section A1, Group6: Jessica Q. Jinyu F. Riasat A., 3/22/2025 \n");
+fprintf("-------------------------------------------------------------\n");
+fprintf("Load: %d oz\n", load);
+fprintf("Member forces in oz:\n");
+for i = 1:numm
+    if T_crit(i) > 0
+        tc = 'T';
+    else
+        tc = 'C';
+    end
+    fprintf("m%d: %.3f (%c)\n", i, T_crit(i), tc);
+end
+
+fprintf("\nReaction forces in oz:\n");
+fprintf("Sx1: %.3f\n", T_crit(numm+1));
+fprintf("Sy1: %.3f\n", T_crit(numm+2));
+fprintf("Sy2: %.3f\n", T_crit(numm+3));
+
+fprintf("\n-------------------------------------------------------------\n");
+fprintf("The member to buckle first is member %d\n", breakload);
+fprintf("Length of that member: %.2f in\n", buckling_length);
+fprintf("Predicted buckling strength: %.2f oz ± %.2f oz\n", buckling_strength, U_fit);
+fprintf("The maximum load that the physical truss could support is %d oz ± %.2f oz\n", max_th_load, uncertainty_max_load);
+
+fprintf("\n-------------------------------------------------------------\n");
+fprintf("Cost of the truss: $%.2f\n", Cost);
+fprintf("Theoretical max load/cost ratio in oz/$: %.3f\n", abs(max_th_load / Cost));
+fprintf("-------------------------------------------------------------\n");
+
+fprintf('\nMember Lengths (in inches):\n');
+for i = 1:numm
+    fprintf("Member %2d: %.3f in\n", i, R(i));
+end
+
+U_fit = 1.35; % from acrylic fit data
+fprintf('\nBuckling Strengths for Compression Members:\n');
+fprintf('-------------------------------------------------------------\n');
+fprintf('| Member | Length (in) | Force (oz) | Buckling Strength ± Unc. |\n');
+fprintf('-------------------------------------------------------------\n');
+
+for i = 1:numm
+    force = T_crit(i);
+    if force < 0  % Only for compression members
+        length = R(i);
+        buckling = 2390 * length^(-1.811);
+        fprintf('|   m%-2d  |   %7.3f  |  %8.3f  |   %8.2f ± %.2f    |\n', ...
+            i, length, force, buckling, U_fit);
+    end
+end
+fprintf('-------------------------------------------------------------\n');
+</code></pre>
+      </details>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="container">
+    <div class="card">
+      <h3 id="results">Results & Learnings</h3>
+      <ul style="margin:8px 0 0 18px">
+        <li><strong>Transparency:</strong> the physical build <em>did not reach the maximum target</em>. The most likely contributors were
+            tape-joint stiffness/strength, cut tolerances, and small misalignments that the model didn’t fully capture.</li>
+        <li><strong>Design judgment:</strong> moving from a 7-joint to an 8-joint Warren truss and lifting the roller 1″ helped distribute
+            compression and lifted the predicted capacity from 50 → 65 oz.</li>
+        <li><strong>Redundancy:</strong> some zero-force members at the nominal load case improved stability and fault tolerance
+            (a deliberate trade-off vs. pure cost efficiency).</li>
+        <li><strong>Next time:</strong> replace tape with slotted/adhesive joints or plastic cement; model tolerances explicitly; and re-optimize
+            for a higher load-to-cost ratio without sacrificing buckling margins.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> Jessica Qiu • Built for GitHub Pages</div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
