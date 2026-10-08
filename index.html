@@ -5,524 +5,659 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="images/headshot.jpg">
 <title>Jessica Qiu</title>
-<meta name="description" content="Jessica Qiu, electrical engineering at Boston University. Optical sensors, nonlinear vibrational imaging and medical devices.">
+<meta name="description" content="Jessica Qiu, electrical engineering at Boston University. An interactive circuit board portfolio: optics research, medical devices and hardware builds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <style>
-/* Layout: optics-bench page. Serif name, then a live "instrument" panel (the fiber microlaser spectrum) as the hero.
-   Research gets the most room; experience is a dated list; projects are compact rows. Left-aligned, 1160px column. */
+/* Layout: the whole site is one purple-soldermask PCB. Chips are sections; hovering energizes a chip's traces,
+   clicking slides a white datasheet over the board. Single deliberate look (board is always dark, datasheet always paper). */
 :root {
-  --ground: #0f1226;
-  --raised: #171b37;
-  --ink: #eceaf5;
-  --muted: #a4a7c4;
-  --rule: #2a2f55;
-  --emit: #ff6b3d;     /* ~615 nm lasing emission */
-  --pump: #5ad08e;     /* 532 nm pump */
-  --plate: #ffffff;    /* figure plates for white-background diagrams */
-  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
-  --sans: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --room: #120c1c;        /* page around the board */
+  --mask: #2b1748;        /* soldermask */
+  --mask-edge: #3a2160;
+  --trace: #4b2c7a;       /* copper seen through mask */
+  --gold: #e0b75c;        /* ENIG pads, lit traces */
+  --silk: #f3eefb;        /* silkscreen */
+  --chip: #16131c;
+  --chip-ink: #a39bb3;
+  --led: #ff5f93;
+  --paper: #ffffff;
+  --paper-ink: #17141d;
+  --paper-muted: #5f5a6b;
+  --paper-rule: #dcd8e3;
+  --paper-band: #f4f1f8;
+  --violet: #5a2aa0;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", sans-serif;
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --ground: #f5f6fb; --raised: #ffffff; --ink: #151834; --muted: #565a7a;
-    --rule: #dcdeeb; --emit: #d43f16; --pump: #1d8a4b; --plate: #ffffff;
-    color-scheme: light;
-  }
-}
-:root[data-theme="light"] {
-  --ground: #f5f6fb; --raised: #ffffff; --ink: #151834; --muted: #565a7a;
-  --rule: #dcdeeb; --emit: #d43f16; --pump: #1d8a4b; --plate: #ffffff;
-  color-scheme: light;
-}
-
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--ground); color: var(--ink); font: 400 1.05rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
-img { max-width: 100%; display: block; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--room); color: var(--silk); font: 400 1rem/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button { font: inherit; }
 a { color: inherit; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--emit); outline-offset: 3px; }
-p, h1, h2, h3, figure, dl, dd { margin: 0; }
-.wrap { max-width: 1160px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
-h1, h2 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; line-height: 1; text-wrap: balance; }
-h2 { font-size: clamp(2.4rem, 5vw, 3.6rem); }
-h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.3; text-wrap: balance; }
-.muted { color: var(--muted); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
-/* Header */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--ground) 86%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
-.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
-.mark { font-family: var(--serif); font-size: 1.45rem; text-decoration: none; white-space: nowrap; }
-.top nav { display: flex; align-items: center; gap: clamp(12px, 2.6vw, 26px); font-size: .95rem; font-weight: 500; }
-.top nav a { text-decoration: none; color: var(--muted); }
-.top nav a:hover { color: var(--ink); }
-.top nav a.pill { color: var(--ink); border: 1px solid var(--rule); padding: 6px 14px; border-radius: 999px; }
+/* Top strip */
+.strip { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; padding: 14px clamp(16px, 3vw, 32px); }
+.who { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
+.who h1 { margin: 0; font: 600 1.25rem/1.1 var(--mono); letter-spacing: .02em; }
+.who span { color: var(--chip-ink); font: 400 .88rem/1.3 var(--mono); }
+.strip nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.chipbtn { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1px solid var(--mask-edge); border-radius: 4px; background: var(--mask); color: var(--silk); font: 500 .85rem/1 var(--mono); text-decoration: none; cursor: pointer; }
+.chipbtn:hover { border-color: var(--gold); color: var(--gold); }
+.chipbtn .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--led); box-shadow: 0 0 8px var(--led); }
 
-/* Hero */
-.hero { padding-block: clamp(44px, 7vw, 88px) 0; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(20px, 5vw, 64px); align-items: end; }
-.hero h1 { font-size: clamp(4rem, 12vw, 9.5rem); line-height: .88; letter-spacing: -0.02em; }
-.hero .intro { margin-top: 26px; font-size: clamp(1.15rem, 1.8vw, 1.4rem); line-height: 1.45; max-width: 36ch; }
-.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 18px; color: var(--muted); font-size: .95rem; }
-.portrait { width: clamp(130px, 17vw, 200px); height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 28%; border-radius: 4px; filter: saturate(.9); }
+/* Board */
+.stage { padding: 0 clamp(8px, 2vw, 24px) 10px; }
+#board { display: block; width: 100%; height: auto; max-height: calc(100dvh - 110px); margin: 0 auto; user-select: none; -webkit-user-select: none; }
+.hint { text-align: center; color: var(--chip-ink); font: 400 .82rem/1.4 var(--mono); padding: 4px 16px 18px; margin: 0; }
 
-/* Instrument */
-.instrument { margin-top: clamp(36px, 5vw, 60px); background: var(--raised); border: 1px solid var(--rule); border-radius: 8px; padding: clamp(16px, 2.6vw, 28px); }
-.inst-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 20px; }
-.inst-head h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
-.inst-head p { color: var(--muted); font-size: .92rem; max-width: 58ch; }
-.inst-body { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; gap: clamp(16px, 3vw, 32px); margin-top: 18px; align-items: stretch; }
-#spec { width: 100%; height: clamp(190px, 24vw, 270px); display: block; }
-.controls { display: grid; gap: 14px; align-content: start; }
-.controls label { font-size: .9rem; color: var(--muted); display: flex; justify-content: space-between; }
-.controls label output { font-family: var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
-input[type=range] { width: 100%; accent-color: var(--emit); }
-.readouts { display: grid; gap: 0; }
-.readouts div { display: flex; justify-content: space-between; gap: 12px; padding-block: 9px; border-top: 1px solid var(--rule); font-size: .9rem; }
-.readouts dt { color: var(--muted); }
-.readouts dd { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.readouts dd.hot { color: var(--emit); }
-.inst-foot { margin-top: 14px; font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
-.inst-foot .pump::before, .inst-foot .emit::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; }
-.inst-foot .pump::before { background: var(--pump); }
-.inst-foot .emit::before { background: var(--emit); }
+/* SVG parts */
+.silk { fill: var(--silk); font-family: var(--mono); }
+.trace { fill: none; stroke: var(--trace); stroke-linecap: round; stroke-linejoin: round; transition: stroke .25s; }
+.flow { fill: none; stroke: var(--gold); stroke-linecap: round; stroke-linejoin: round; opacity: 0; filter: url(#glow); transition: opacity .2s; }
+.part { cursor: pointer; outline: none; }
+.part .body { fill: var(--chip); }
+.part .outline { fill: none; stroke: var(--silk); stroke-opacity: .55; transition: stroke .2s; }
+.part .pin { fill: var(--gold); }
+.part .pn { fill: var(--silk); font-family: var(--mono); font-weight: 600; }
+.part .fn { fill: var(--chip-ink); font-family: var(--mono); }
+.part:hover .outline, .part:focus-visible .outline, .part.on .outline { stroke: var(--gold); stroke-opacity: 1; }
+.part:focus-visible .body { stroke: var(--gold); stroke-width: 2; }
+.net.live .flow { opacity: 1; animation: run .9s linear infinite; }
+@keyframes run { to { stroke-dashoffset: -28; } }
+.led { transition: fill .3s; }
+.led.lit { fill: var(--led); filter: url(#glow); }
 
-/* Sections */
-section { padding-block: clamp(64px, 9vw, 112px) 0; }
-.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 12px clamp(24px, 5vw, 64px); align-items: end; margin-bottom: clamp(28px, 4vw, 44px); }
-.sec-head p { color: var(--muted); max-width: 60ch; }
+/* Datasheet drawer */
+.sheet { position: fixed; inset: 0 0 0 auto; width: min(620px, 100%); background: var(--paper); color: var(--paper-ink); transform: translateX(102%); visibility: hidden; transition: transform .35s cubic-bezier(.2,.8,.2,1), visibility 0s .35s; z-index: 20; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; box-shadow: -24px 0 60px rgba(0,0,0,.45); color-scheme: light; }
+.sheet.open { transform: none; visibility: visible; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.scrim { position: fixed; inset: 0; background: rgba(10, 6, 18, .45); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 15; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+.sheet header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); background: var(--paper-ink); color: var(--paper); font: 500 .82rem/1.3 var(--mono); }
+.sheet header .x { background: none; border: 1px solid #ffffff40; color: var(--paper); border-radius: 4px; padding: 5px 10px; cursor: pointer; font: 500 .82rem/1 var(--mono); }
+.sheet header .x:hover { border-color: var(--gold); color: var(--gold); }
+.doc { overflow-y: auto; padding: 26px clamp(18px, 4vw, 36px) 36px; overscroll-behavior: contain; outline: none; }
+.sheet footer { display: flex; justify-content: space-between; gap: 10px; padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--paper-rule); background: var(--paper); }
+.sheet footer button { background: none; border: 1px solid var(--paper-rule); color: var(--paper-ink); border-radius: 4px; padding: 7px 12px; font: 500 .82rem/1 var(--mono); cursor: pointer; }
+.sheet footer button:hover { border-color: var(--violet); color: var(--violet); }
 
-/* Studies */
-.study { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: clamp(24px, 5vw, 64px); padding-block: clamp(28px, 4vw, 44px); border-top: 1px solid var(--rule); }
-.study .where { display: grid; gap: 4px; font-size: .95rem; color: var(--muted); align-content: start; }
-.study .where strong { color: var(--ink); font-weight: 600; font-size: 1rem; }
-.study .where .when { color: var(--emit); font-weight: 600; }
-.study h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.08; }
-.study .text { display: grid; gap: 14px; }
-.study .text p { color: var(--muted); max-width: 64ch; }
-.study .text p.lead { color: var(--ink); }
-.results { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 8px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-.results div { padding: 14px 14px 14px 0; display: grid; gap: 2px; align-content: start; }
-.results div + div { padding-left: 14px; border-left: 1px solid var(--rule); }
-.results dt { font-family: var(--serif); font-size: clamp(1.35rem, 2vw, 1.65rem); line-height: 1.1; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.results dd { font-size: .85rem; color: var(--muted); line-height: 1.4; }
-.figs { display: grid; gap: 12px; margin-top: 10px; }
-.figs.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.figs.hand { grid-template-columns: minmax(0, .75fr) minmax(0, 2fr); align-items: start; }
-.figs figure { display: grid; gap: 6px; }
-.figs figcaption { font-size: .82rem; color: var(--muted); }
-.plate { background: var(--plate); border-radius: 4px; padding: 6px; }
-.figs img { border-radius: 3px; width: 100%; height: auto; }
-.credit { font-size: .85rem; color: var(--muted); }
+.doc .partno { font: 600 .82rem/1.2 var(--mono); color: var(--violet); }
+.doc h2 { font: 700 clamp(1.6rem, 4vw, 2.1rem)/1.1 var(--cond); margin: 6px 0 4px; text-wrap: balance; }
+.doc .sub { color: var(--paper-muted); font-size: .95rem; margin: 0; }
+.doc h3 { font: 600 .95rem/1.2 var(--cond); margin: 26px 0 8px; padding: 6px 10px; background: var(--paper-band); border-left: 3px solid var(--violet); }
+.doc p { margin: 0 0 10px; font-size: .98rem; }
+.doc ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: .97rem; }
+.doc table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.doc th { text-align: left; font: 600 .78rem/1.3 var(--cond); color: var(--paper-muted); border-bottom: 1.5px solid var(--paper-ink); padding: 6px 8px 6px 0; }
+.doc td { border-bottom: 1px solid var(--paper-rule); padding: 7px 8px 7px 0; vertical-align: top; }
+.doc td.v { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
+.tablewrap { overflow-x: auto; }
+.doc figure { margin: 12px 0 0; display: grid; gap: 6px; }
+.doc figure img { width: 100%; height: auto; border: 1px solid var(--paper-rule); border-radius: 2px; display: block; }
+.doc figcaption { font-size: .82rem; color: var(--paper-muted); }
+.doc .two { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+.doc .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.doc .links a, .doc .links button { display: inline-flex; padding: 9px 14px; border-radius: 4px; background: var(--paper-ink); color: var(--paper); text-decoration: none; font: 500 .85rem/1 var(--mono); border: 1px solid var(--paper-ink); cursor: pointer; }
+.doc .links a.ghost { background: none; color: var(--paper-ink); border-color: var(--paper-rule); }
+.doc .links a:hover, .doc .links button:hover { background: var(--violet); border-color: var(--violet); color: var(--paper); }
+.doc .portrait { width: 132px; height: 132px; object-fit: cover; border-radius: 2px; float: right; margin: 0 0 10px 16px; }
+.doc .status { display: inline-block; font: 600 .75rem/1 var(--mono); color: var(--violet); border: 1px solid var(--violet); padding: 4px 8px; border-radius: 3px; margin-top: 8px; }
+.note { font: 500 .85rem/1.3 var(--mono); color: var(--violet); }
 
-/* Experience */
-.jobs { border-top: 1px solid var(--rule); }
-.job { display: grid; grid-template-columns: 11rem minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px clamp(18px, 3vw, 40px); padding-block: 22px; border-bottom: 1px solid var(--rule); }
-.job time { font-size: .9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.job h3 { font-size: 1.08rem; }
-.job .org { color: var(--muted); font-size: .95rem; }
-.job p { color: var(--muted); font-size: .97rem; }
+/* Fiber spectrum widget inside U2 */
+.scope { border: 1px solid var(--paper-rule); border-radius: 3px; padding: 12px; background: #fbfafd; }
+.scope canvas { width: 100%; height: 190px; display: block; }
+.scope label { display: flex; justify-content: space-between; font: 500 .82rem/1.3 var(--mono); color: var(--paper-muted); margin-top: 8px; }
+.scope output { color: var(--paper-ink); }
+.scope input { width: 100%; accent-color: var(--violet); }
+.scope .read { display: flex; flex-wrap: wrap; gap: 4px 18px; font: 500 .82rem/1.4 var(--mono); margin-top: 6px; }
+.scope .read b { color: #c2361a; font-weight: 600; }
 
-/* Projects */
-.feature { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); padding: clamp(20px, 3.4vw, 36px); background: var(--raised); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 18px; }
-.feature .tag { color: var(--emit); font-weight: 600; font-size: .9rem; }
-.feature h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 3vw, 2.2rem); line-height: 1.08; margin-top: 6px; }
-.feature p { color: var(--muted); margin-top: 12px; max-width: 60ch; }
-.feature dl { border-top: 1px solid var(--rule); align-self: start; }
-.feature dl div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 14px; padding-block: 12px; border-bottom: 1px solid var(--rule); }
-.feature dt { font-family: var(--serif); font-size: 1.5rem; line-height: 1.1; }
-.feature dd { color: var(--muted); font-size: .92rem; }
-.rows { display: grid; }
-.row { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: clamp(14px, 3vw, 32px); align-items: center; padding-block: 18px; border-bottom: 1px solid var(--rule); text-decoration: none; }
-.row img, .row svg { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: var(--plate); }
-.row h3 { font-size: 1.12rem; }
-.row p { color: var(--muted); font-size: .96rem; margin-top: 4px; max-width: 64ch; }
-.row .go { color: var(--muted); font-size: .9rem; white-space: nowrap; }
-.row:hover h3, .row:hover .go { color: var(--emit); }
-
-/* Skills */
-.skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 4vw, 48px); }
-.skills h3 { font-size: 1rem; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
-.skills ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 5px; color: var(--muted); font-size: .97rem; }
-
-/* Contact */
-.contact { padding-block-end: clamp(64px, 9vw, 104px); }
-.contact .big { display: inline-block; font-family: var(--serif); font-size: clamp(2.2rem, 7vw, 5rem); line-height: 1; text-decoration: none; overflow-wrap: anywhere; }
-.contact .big:hover { color: var(--emit); }
-.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; align-items: center; }
-.btn { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--rule); background: transparent; color: var(--ink); font: 600 .95rem/1 var(--sans); text-decoration: none; cursor: pointer; }
-.btn:hover { border-color: var(--emit); }
-.btn.solid { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-.btn.solid:hover { background: var(--emit); border-color: var(--emit); }
-.note { font-size: .9rem; color: var(--emit); }
-footer { border-top: 1px solid var(--rule); color: var(--muted); font-size: .88rem; }
-footer .wrap { padding-block: 22px 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
-
-@media (max-width: 900px) {
-  .sec-head, .study, .feature { grid-template-columns: 1fr; }
-  .inst-body { grid-template-columns: 1fr; }
-  .controls { grid-template-columns: 1fr 1fr; column-gap: 24px; }
-  .controls .slider { grid-column: 1 / -1; }
-  .job { grid-template-columns: 9rem minmax(0, 1fr); }
-  .job p { grid-column: 2; }
+@media (max-width: 560px) {
+  .doc .two { grid-template-columns: 1fr; }
+  .doc .portrait { width: 96px; height: 96px; }
+  #board { max-height: none; }
 }
-@media (max-width: 640px) {
-  .hero-grid { grid-template-columns: 1fr; }
-  .portrait { grid-row: 1; width: 110px; }
-  .results { grid-template-columns: 1fr 1fr; }
-  .results div:nth-child(3) { padding-left: 0; border-left: 0; }
-  .results div:nth-child(n+3) { border-top: 1px solid var(--rule); }
-  .figs.two, .figs.hand { grid-template-columns: 1fr; }
-  .controls { grid-template-columns: 1fr; }
-  .job { grid-template-columns: 1fr; gap: 4px; }
-  .job p { grid-column: 1; }
-  .row { grid-template-columns: 6rem minmax(0, 1fr); }
-  .row .go { display: none; }
-  .skills { grid-template-columns: 1fr; }
-  .top nav a.opt { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .scrim { transition: none; }
+  .net.live .flow { animation: none; }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <a class="mark" href="#top">Jessica Qiu</a>
-    <nav aria-label="Sections">
-      <a href="#research">Research</a>
-      <a href="#experience" class="opt">Experience</a>
-      <a href="#projects" class="opt">Projects</a>
-      <a href="#contact">Contact</a>
-      <a class="pill" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume</a>
-    </nav>
+<div class="strip">
+  <div class="who">
+    <h1>JESSICA QIU</h1>
+    <span>Electrical engineering, Boston University, 2027. Optics and medical devices.</span>
   </div>
-</header>
+  <nav aria-label="Quick links">
+    <a class="chipbtn" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener"><span class="dot"></span>Resume</a>
+    <button class="chipbtn" type="button" data-open="j1">Contact</button>
+  </nav>
+</div>
 
-<main id="top">
-  <div class="hero wrap">
-    <div class="hero-grid">
-      <div>
-        <h1>Jessica Qiu</h1>
-        <p class="intro">I build optical sensors and imaging systems for medicine, from laser microscopes to stretchable fiber lasers.</p>
-        <div class="facts">
-          <span>B.S. Electrical Engineering, Boston University, May 2027</span>
-          <span>Minor in Biomedical Engineering</span>
-          <span>GPA 3.8</span>
-        </div>
-      </div>
-      <img class="portrait" src="images/headshot.jpg" alt="Portrait of Jessica Qiu" width="640" height="640">
-    </div>
+<div class="stage">
+  <svg id="board" role="group" aria-label="Portfolio circuit board. Each part opens a datasheet."></svg>
+</div>
+<p class="hint">Hover a part to power its traces. Click it to open its datasheet. Flip SW1 to power the board again.</p>
 
-    <div class="instrument" aria-labelledby="inst-title">
-      <div class="inst-head">
-        <h2 id="inst-title">Stretch the fiber</h2>
-        <p>My summer 2026 sensor: a PMMA fiber laser whose mode spacing widens under stress. Drag the slider to see the spectrum change.</p>
-      </div>
-      <div class="inst-body">
-        <canvas id="spec" role="img" aria-label="Lasing spectrum from 600 to 640 nanometers. Mode spacing grows as stress increases."></canvas>
-        <div class="controls">
-          <div class="slider">
-            <label for="stress">Applied stress <output id="stressOut" for="stress">0.00 MPa</output></label>
-            <input id="stress" type="range" min="0" max="33.21" step="0.01" value="0">
-          </div>
-          <dl class="readouts">
-            <div><dt>Mode spacing (FSR)</dt><dd id="fsr" class="hot">1.942 nm</dd></div>
-            <div><dt>Change in FSR</dt><dd id="dfsr">+0.000 nm</dd></div>
-            <div><dt>Lasing modes</dt><dd id="modes">multimode</dd></div>
-          </dl>
-        </div>
-      </div>
-      <div class="inst-foot">
-        <span class="pump">532 nm pump into Rhodamine 6G</span>
-        <span class="emit">Laser emission near 615 nm</span>
-        <span>Drawn from my measured FSR at 0, 6.17, 14.50, 21.06, 26.93 and 33.21 MPa</span>
-      </div>
-    </div>
-  </div>
-
-  <section id="research">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Research</h2>
-        <p>Two labs, one thread: using light to measure what's happening inside materials and cells, without labels or wires.</p>
-      </div>
-
-      <article class="study">
-        <div class="where">
-          <span class="when">May – July 2026</span>
-          <strong>Nanyang Technological University, Singapore</strong>
-          <span>Centre for Bio-Devices and Bio-Informatics</span>
-          <span>Mentor: Xiyu Sun. Supervisor: Prof. Yu-Cheng Chen</span>
-        </div>
-        <div class="text">
-          <h3>Flexible fiber microlaser for finger-joint health detection</h3>
-          <p class="lead">A stress sensor made from a stretchable optical fiber. Tiny microbubble cavities in a dye-doped PMMA fiber act as lasers. When the fiber stretches, the cavities deform and the spacing between laser modes grows, so the spectrum reports the stress.</p>
-          <p>I fabricated the fibers and tuned the polymer: I compared 15k, 120k and 350k molecular-weight PMMA and chose 350k for its strength and stretch. I then characterized lasing and stress response under a laser microscope with a spectrometer, and showed how fibers along a finger could estimate joint angles for hand-mobility assessment.</p>
-          <dl class="results">
-            <div><dt>0.054 nm/MPa</dt><dd>Sensitivity</dd></div>
-            <div><dt>R² = 0.99</dt><dd>Linearity of FSR vs. stress</dd></div>
-            <div><dt>3.03 MPa</dt><dd>Limit of detection</dd></div>
-            <div><dt>14.45 µJ/mm²</dt><dd>Lasing threshold</dd></div>
-          </dl>
-          <div class="figs hand">
-            <figure>
-              <img src="images/research/fiber.jpg" alt="Microscope image of the 20 micron fiber glowing green and orange under the pump laser" loading="lazy">
-              <figcaption>The fiber lasing under the microscope. D = 20 µm.</figcaption>
-            </figure>
-            <figure>
-              <div class="plate"><img src="images/research/joint-demo.jpg" alt="Robotic hand model with the MCP, PIP and DIP joints each bent to 60 degrees" loading="lazy"></div>
-              <figcaption>Hand-model demo: bending the MCP, PIP and DIP joints to 60° shifts the FSR in the cavity nearest each joint.</figcaption>
-            </figure>
-          </div>
-        </div>
-      </article>
-
-      <article class="study">
-        <div class="where">
-          <span class="when">Nov 2024 – present</span>
-          <strong>Ji-Xin Cheng Research Group, Boston University</strong>
-          <span>Photonics Center. Funded by BU UROP</span>
-          <span>With Yifan Zhu, Jiaze Yin and Prof. Ji-Xin Cheng</span>
-        </div>
-        <div class="text">
-          <h3>Nonlinear vibrational imaging systems for chemical-specific microscopy</h3>
-          <p class="lead">Two microscopes that see molecules by their vibrations. VREF pairs an infrared pump with a visible probe to turn vibrational energy into fluorescence. SRP detects the tiny heat a Raman excitation leaves behind, which makes weak Raman signals strong enough to image.</p>
-          <p>I engineer the beam paths for both systems around a Carbide Yb laser (1030, 800 and 1500 nm), with polarization optics, delay stages and PMTs. I characterized difference frequency generation for VREF's tunable mid-IR, measured SRP spectra in the C–D silent region, and run quantitative fluorescence image analysis on <i>C. elegans</i> to map lysosome-related organelles.</p>
-          <dl class="results">
-            <div><dt>5.7</dt><dd>Signal-to-background ratio, SRP</dd></div>
-            <div><dt>20 cm⁻¹</dt><dd>Spectral resolution (FWHM)</dd></div>
-            <div><dt>2125 cm⁻¹</dt><dd>DMSO-d₆ peak in the C–D window</dd></div>
-            <div><dt>2250 cm⁻¹</dt><dd>Acetonitrile peak</dd></div>
-          </dl>
-          <div class="figs two">
-            <figure>
-              <div class="plate"><img src="images/research/vref-beam-path.png" alt="VREF beam path: Carbide Yb laser, DFG, delay stage, objective and PMT" loading="lazy"></div>
-              <figcaption>VREF beam path, with DFG for mid-IR excitation.</figcaption>
-            </figure>
-            <figure>
-              <div class="plate"><img src="images/research/srp-beam-path.png" alt="SRP beam path: Carbide Yb laser at 1030 and 1500 nm, delay stage, objective, PMT" loading="lazy"></div>
-              <figcaption>SRP beam path, pump at 1030 nm with a 1500 nm probe line.</figcaption>
-            </figure>
-          </div>
-          <figure class="figs">
-            <div class="plate"><img src="images/research/srp-silent-region.png" alt="SRP spectra of DMSO-d6 and acetonitrile from 1900 to 2300 inverse centimeters, with a field map at 2125" loading="lazy"></div>
-            <figcaption>SRP spectra of DMSO-d₆ and acetonitrile in the silent region, with a DMSO-d₆ field map at 2125 cm⁻¹.</figcaption>
-          </figure>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section id="experience">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Experience</h2>
-        <p>Teaching circuits and optics at BU, and software before that.</p>
-      </div>
-      <div class="jobs">
-        <div class="job">
-          <time>Sept 2026 – present</time>
-          <div><h3>Undergraduate Teaching Assistant</h3><span class="org">EC 410 Intro to Electronics, BU</span></div>
-          <p>Run weekly labs on diode, BJT and MOSFET circuits: breadboarding, oscilloscopes and multimeters. Grade lab reports and LTspice work with feedback on small-signal and frequency-domain analysis.</p>
-        </div>
-        <div class="job">
-          <time>Jan 2025 – present</time>
-          <div><h3>Undergraduate Teaching Assistant</h3><span class="org">BE/EC 556 Optical Spectroscopic Imaging, BU</span></div>
-          <p>Lead office hours for a graduate course, working through laser physics, wave optics and spectroscopic analysis with students. Grade assignments, exams and projects.</p>
-        </div>
-        <div class="job">
-          <time>June 2024 – Aug 2025</time>
-          <div><h3>Software Engineering Intern</h3><span class="org">Pulp Internet Corporation, Brooklyn</span></div>
-          <p>Built Data Stories templates and data pipelines in JavaScript, Python, pandas and Streamlit that turned transcripts into interactive visualizations. Worked on the Persona Engine with OpenAI workflows and NLP.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="projects">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Projects</h2>
-        <p>Hardware builds from class and team work. Each row opens a full write-up with schematics, code and results.</p>
-      </div>
-
-      <article class="feature">
-        <div>
-          <span class="tag">Senior Design, in progress</span>
-          <h3>Shoulder dystocia training simulator</h3>
-          <p>A soft robotic birth canal and fetal shoulder model for practicing a delivery emergency. Sensors watch how the trainee pulls and warn when force or angle could injure the baby. I lead the sensing subsystem on a six-person team working with a clinical contact at Boston Medical Center.</p>
-        </div>
-        <dl>
-          <div><dt>150 N</dt><dd>Excessive-force warning threshold</dd></div>
-          <div><dt>25–45°</dt><dd>Safe traction angle below horizontal</dd></div>
-          <div><dt>50 Hz</dt><dd>Sensor sampling for real-time feedback</dd></div>
-        </dl>
-      </article>
-
-      <div class="rows">
-        <a class="row" href="projects-html/project-biosensor.html">
-          <img src="images/thumbs/biosensor.jpg" alt="3D-printed wrist sensor enclosure" loading="lazy">
-          <div><h3>Biometric sensor for tennis</h3><p>Led a 4-person team on a wrist wearable that tracks swing acceleration and rotation and buzzes at target thresholds. I designed the sensor, power and haptic circuits and the firmware, calibrated to a ±5% accuracy target.</p></div>
-          <span class="go">Write-up</span>
-        </a>
-        <a class="row" href="projects-html/project-snake.html">
-          <img src="images/thumbs/snake.jpg" alt="Monitor showing the FPGA Snake game" loading="lazy">
-          <div><h3>Snake on an FPGA</h3><p>Verilog game with its own 640×480 at 60 Hz VGA controller, FSM game logic, scoring and three difficulty levels.</p></div>
-          <span class="go">Write-up</span>
-        </a>
-        <a class="row" href="projects-html/project-temp-monitor.html">
-          <img src="images/thumbs/temp.jpg" alt="Enclosure with an LCD showing a temperature reading" loading="lazy">
-          <div><h3>Temperature monitor</h3><p>TMP36 sensor, I²C LCD readout, and LED and buzzer alerts outside a set range. Circuit planned in Tinkercad, enclosure in Onshape.</p></div>
-          <span class="go">Write-up</span>
-        </a>
-        <a class="row" href="projects-html/project-truss.html">
-          <svg viewBox="0 0 400 300" role="img" aria-label="Warren truss drawing">
-            <rect width="400" height="300" fill="#ffffff"/>
-            <path d="M40 200 L360 200 M93 120 L307 120 M40 200 L93 120 L147 200 L200 120 L253 200 L307 120 L360 200" stroke="#151834" stroke-width="5" fill="none" stroke-linejoin="round"/>
-            <g fill="#d43f16"><circle cx="40" cy="200" r="8"/><circle cx="147" cy="200" r="8"/><circle cx="253" cy="200" r="8"/><circle cx="360" cy="200" r="8"/><circle cx="93" cy="120" r="8"/><circle cx="200" cy="120" r="8"/><circle cx="307" cy="120" r="8"/></g>
-          </svg>
-          <div><h3>Acrylic Warren truss</h3><p>Lab-measured acrylic buckling, a MATLAB solver for member forces and failure load, and a final design predicted to hold 65 ± 1.35 oz.</p></div>
-          <span class="go">Write-up</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section id="skills">
-    <div class="wrap">
-      <div class="sec-head"><h2>Skills</h2></div>
-      <div class="skills">
-        <div><h3>Optics and imaging</h3><ul><li>Optical alignment</li><li>VREF and SRP microscopy</li><li>Mid-IR photothermal imaging</li><li>Fluorescence microscopy</li><li>Yb lasers, PMTs, polarization optics</li></ul></div>
-        <div><h3>Electronics</h3><ul><li>Oscilloscopes and function generators</li><li>PCB design in KiCad</li><li>Soldering</li><li>Microcontrollers</li><li>FPGA design in Verilog</li></ul></div>
-        <div><h3>Software</h3><ul><li>Python and MATLAB</li><li>JavaScript</li><li>LaTeX</li><li>AutoCAD, Revit, Onshape</li></ul></div>
-      </div>
-      <p class="credit" style="margin-top:32px">Also: Academic and Professional Development Chair, Theta Tau. Electrical and Life Detection team, BU Mars Rover. Mentor, BU Society of Asian Scientists and Engineers.</p>
-    </div>
-  </section>
-
-  <section id="contact" class="contact">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Contact</h2>
-        <p>I'm looking for roles in optics, medical devices and hardware. Email is the fastest way to reach me.</p>
-      </div>
-      <a class="big" id="email" href="mailto:jqiu41@gmail.com">jqiu41@gmail.com</a>
-      <div class="btns">
-        <button class="btn solid" type="button" id="copy">Copy email</button>
-        <a class="btn" href="https://www.linkedin.com/in/jessica-qiu1/" target="_blank" rel="noopener">LinkedIn</a>
-        <a class="btn" href="https://github.com/JessicaQiu0" target="_blank" rel="noopener">GitHub</a>
-        <a class="btn" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume</a>
-        <span class="note" id="note" aria-live="polite"></span>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer><div class="wrap"><span>© <span id="year">2026</span> Jessica Qiu</span><span>Boston University, College of Engineering</span></div></footer>
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="dsTitle" aria-hidden="true">
+  <header><span id="dsHead">DATASHEET</span><button class="x" type="button" id="close">Close</button></header>
+  <div class="doc" id="doc" tabindex="-1"></div>
+  <footer><button type="button" id="prev">Previous part</button><button type="button" id="next">Next part</button></footer>
+</aside>
 
 <script>
 (() => {
-  document.getElementById('year').textContent = new Date().getFullYear();
+const NS = 'http://www.w3.org/2000/svg';
+const board = document.getElementById('board');
+const EMAIL = 'jqiu41@gmail.com';
 
-  const copy = document.getElementById('copy'), note = document.getElementById('note');
-  copy.addEventListener('click', () => {
-    const sel = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('email')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); note.textContent = 'Selected. Press Ctrl+C or ⌘C'; };
-    try { navigator.clipboard.writeText('jqiu41@gmail.com').then(() => { note.textContent = 'Email copied'; setTimeout(() => note.textContent = '', 2400); }, sel); } catch (e) { sel(); }
+/* ---------- Content: one datasheet per part ---------- */
+const parts = [
+  { id: 'u1', ref: 'U1', pn: 'JQ-2027', fn: 'ABOUT ME', kind: 'mcu', title: 'Jessica Qiu', sub: 'Electrical engineer, B.S. expected May 2027',
+    html: `
+      <img class="portrait" src="images/headshot.jpg" alt="Portrait of Jessica Qiu">
+      <h3>General description</h3>
+      <p>I'm an electrical engineering student at Boston University with a minor in biomedical engineering. I build optical sensors and imaging systems for medicine, and the circuits and firmware around them.</p>
+      <p>This board is my portfolio. Every part wired to me is something I've worked on.</p>
+      <h3>Features</h3>
+      <ul>
+        <li>B.S. Electrical Engineering, minor in Biomedical Engineering, GPA 3.8</li>
+        <li>Research in fiber microlasers (NTU Singapore) and nonlinear vibrational imaging (BU Cheng Lab)</li>
+        <li>Teaching assistant for intro electronics and graduate optical spectroscopic imaging</li>
+        <li>Academic and Professional Development Chair, Theta Tau. Electrical and Life Detection team, BU Mars Rover. Mentor, SASE.</li>
+      </ul>
+      <h3>Pin description</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Pin</th><th>Name</th><th>Function</th></tr>
+        <tr><td class="v">1</td><td>OPT</td><td>Optical alignment, VREF and SRP microscopy, mid-IR photothermal imaging, fluorescence microscopy, Yb lasers, PMTs, polarization optics</td></tr>
+        <tr><td class="v">2</td><td>HW</td><td>Oscilloscopes, function generators, PCB design (KiCad), soldering, microcontrollers, FPGA (Verilog)</td></tr>
+        <tr><td class="v">3</td><td>SW</td><td>Python, MATLAB, JavaScript, LaTeX</td></tr>
+        <tr><td class="v">4</td><td>CAD</td><td>Onshape, AutoCAD, Revit, Tinkercad</td></tr>
+        <tr><td class="v">5</td><td>EDU</td><td>Circuits, logic design, signals and systems, electromagnetics, power electronics, DSP</td></tr>
+      </table></div>
+      <div class="links"><a href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Open resume</a><button type="button" data-open="j1">Contact</button></div>` },
+
+  { id: 'u2', ref: 'U2', pn: 'FML-054', fn: 'FIBER LASER', kind: 'qfn', title: 'Flexible fiber microlaser for finger-joint health detection', sub: 'Research, Nanyang Technological University, Singapore. May to July 2026',
+    html: `
+      <h3>General description</h3>
+      <p>A stress sensor made from a stretchable optical fiber. Microbubble cavities inside a Rhodamine 6G–doped PMMA fiber act as whispering-gallery-mode lasers. Stretching the fiber deforms the cavities and widens the spacing between laser modes (the free spectral range, FSR), so the spectrum reports the stress.</p>
+      <p>Centre for Bio-Devices and Bio-Informatics. Mentor: Xiyu Sun. Supervisor: Prof. Yu-Cheng Chen.</p>
+      <h3>Try it: stretch the fiber</h3>
+      <div class="scope">
+        <canvas id="fml" role="img" aria-label="Lasing spectrum from 600 to 640 nanometers"></canvas>
+        <label for="stress">Applied stress <output id="sOut">0.00 MPa</output></label>
+        <input id="stress" type="range" min="0" max="33.21" step="0.01" value="0">
+        <div class="read"><span>FSR <b id="fOut">1.942 nm</b></span><span>ΔFSR <b id="dOut">+0.000 nm</b></span><span>Modes <b id="mOut">multimode</b></span></div>
+      </div>
+      <p class="sub" style="margin-top:6px;font-size:.82rem">Drawn from my measured FSR at 0, 6.17, 14.50, 21.06 and 26.93 MPa; single mode at 33.21 MPa.</p>
+      <h3>Optical characteristics</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+        <tr><td>Sensitivity</td><td class="v">0.054 nm/MPa</td><td>Slope of ΔFSR vs. stress</td></tr>
+        <tr><td>Linearity</td><td class="v">R² = 0.99</td><td>0 to 33.21 MPa</td></tr>
+        <tr><td>Limit of detection</td><td class="v">3.03 MPa</td><td>Smallest stress reliably detected</td></tr>
+        <tr><td>Lasing threshold</td><td class="v">14.45 µJ/mm²</td><td>532 nm pump</td></tr>
+        <tr><td>FSR, unstretched</td><td class="v">1.795–1.942 nm</td><td>Multiple WGM modes near 615 nm</td></tr>
+        <tr><td>Fiber material</td><td class="v">PMMA, Mw 350k</td><td>Chosen over 15k and 120k for strength and elongation</td></tr>
+      </table></div>
+      <h3>What I did</h3>
+      <ul>
+        <li>Fabricated the fibers and tuned polymer molecular weight and fabrication parameters for stability and durability</li>
+        <li>Characterized lasing and stress response with microscopy, laser excitation and spectroscopy</li>
+        <li>Showed how fibers along a finger can estimate MCP, PIP and DIP joint angles and Total Active Motion for hand-mobility assessment</li>
+      </ul>
+      <div class="two">
+        <figure><img src="images/research/fiber.jpg" alt="Fiber lasing under the microscope" loading="lazy"><figcaption>Fiber lasing under the pump. D = 20 µm.</figcaption></figure>
+        <figure><img src="images/research/hand-model.jpg" alt="Fiber microlaser mounted along a robotic finger" loading="lazy"><figcaption>Fiber along the finger joints of a hand model.</figcaption></figure>
+      </div>
+      <figure><img src="images/research/joint-demo.jpg" alt="Hand model with MCP, PIP and DIP joints bent to 60 degrees" loading="lazy"><figcaption>Bending each joint to 60° shifts the FSR in the nearest cavity.</figcaption></figure>` },
+
+  { id: 'u3', ref: 'U3', pn: 'SRP-2125', fn: 'VIB IMAGING', kind: 'qfp', title: 'Nonlinear vibrational imaging for chemical-specific microscopy', sub: 'Research, Ji-Xin Cheng Group, BU Photonics Center. Nov 2024 to present',
+    html: `
+      <h3>General description</h3>
+      <p>Two label-free microscopes that image molecules by their vibrations. VREF pairs an infrared pump with a visible probe so vibrational energy comes out as fluorescence. SRP detects the small heat a Raman excitation leaves behind, which turns weak Raman signals into a strong optical readout.</p>
+      <p>With Yifan Zhu, Jiaze Yin and Prof. Ji-Xin Cheng. Funded by BU UROP.</p>
+      <h3>Characteristics</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+        <tr><td>Signal-to-background</td><td class="v">5.7</td><td>SRP, C–D silent region</td></tr>
+        <tr><td>Spectral resolution</td><td class="v">20 cm⁻¹</td><td>FWHM</td></tr>
+        <tr><td>DMSO-d₆ peak</td><td class="v">2125 cm⁻¹</td><td>C–D stretch</td></tr>
+        <tr><td>Acetonitrile peak</td><td class="v">2250 cm⁻¹</td><td></td></tr>
+        <tr><td>Laser source</td><td class="v">1030/800/1500 nm</td><td>Carbide Yb laser</td></tr>
+      </table></div>
+      <h3>What I did</h3>
+      <ul>
+        <li>Engineered beam paths for both systems: polarization optics, delay stages and PMTs, tuned for mid-IR excitation and stability</li>
+        <li>Characterized difference frequency generation output for VREF's tunable mid-IR</li>
+        <li>Measured SRP photothermal responses and spectra in the silent region</li>
+        <li>Ran quantitative fluorescence image analysis on <i>C. elegans</i> to map lysosome-related organelles</li>
+      </ul>
+      <div class="two">
+        <figure><img src="images/research/vref-beam-path.png" alt="VREF beam path diagram" loading="lazy"><figcaption>VREF beam path with DFG.</figcaption></figure>
+        <figure><img src="images/research/srp-beam-path.png" alt="SRP beam path diagram" loading="lazy"><figcaption>SRP beam path.</figcaption></figure>
+      </div>
+      <figure><img src="images/research/srp-silent-region.png" alt="SRP spectra of DMSO-d6 and acetonitrile" loading="lazy"><figcaption>SRP spectra in the silent region, with a DMSO-d₆ field map at 2125 cm⁻¹.</figcaption></figure>` },
+
+  { id: 'u4', ref: 'U4', pn: 'SD-17', fn: 'SENIOR DESIGN', kind: 'soic', title: 'Shoulder dystocia training simulator', sub: 'Senior Design, 2026–27. Six-person team with a Boston Medical Center clinical contact',
+    html: `
+      <span class="status">IN DEVELOPMENT</span>
+      <h3>General description</h3>
+      <p>A soft robotic birth canal and fetal shoulder model for practicing a delivery emergency. Sensors watch how the trainee pulls and warn when force or angle could injure the baby.</p>
+      <p>I own the sensing subsystem: force measurement, warning thresholds, and the path from sensors to microcontroller to the training app.</p>
+      <h3>Design targets</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Target</th><th>Source</th></tr>
+        <tr><td>Excessive-force warning</td><td class="v">150 N</td><td>Published delivery force studies</td></tr>
+        <tr><td>Safe traction angle</td><td class="v">25–45°</td><td>Below horizontal, ACOG guidance</td></tr>
+        <tr><td>Sampling rate</td><td class="v">50 Hz</td><td>Real-time feedback</td></tr>
+      </table></div>` },
+
+  { id: 'u5', ref: 'U5', pn: 'BIO-33', fn: 'BIOSENSOR', kind: 'qfn', title: 'Biometric sensor for tennis', sub: 'Embedded systems. Oct to Dec 2024. Team lead, 4 people',
+    html: `
+      <h3>General description</h3>
+      <p>A wrist wearable that tracks acceleration and rotation during tennis swings and gives haptic feedback when the swing hits a user-set range. OLED menu with a rotary encoder, rechargeable Li-ion with a boost converter.</p>
+      <p>I led the team and designed the sensor, power and haptic circuits and the firmware.</p>
+      <h3>Characteristics</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Acceleration range</td><td class="v">±8 g</td></tr>
+        <tr><td>Rotation range</td><td class="v">±1000 °/s</td></tr>
+        <tr><td>Accuracy target</td><td class="v">±5%</td></tr>
+        <tr><td>Controller and IMU</td><td class="v">Nano 33 IoT, MPU-6050</td></tr>
+      </table></div>
+      <figure><img src="images/thumbs/biosensor.jpg" alt="3D-printed wrist sensor enclosure" loading="lazy"><figcaption>Prototype enclosure.</figcaption></figure>
+      <div class="links"><a href="projects-html/project-biosensor.html">Full write-up and code</a></div>` },
+
+  { id: 'u6', ref: 'U6', pn: 'FPGA-VGA', fn: 'SNAKE GAME', kind: 'bga', title: 'Snake on an FPGA', sub: 'Digital design. Nov to Dec 2024',
+    html: `
+      <h3>General description</h3>
+      <p>Snake written in Verilog with its own VGA controller, finite-state-machine game logic, scoring and three difficulty levels. I worked on RTL design, timing, input handling and testing.</p>
+      <h3>Timing characteristics</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Active video</td><td class="v">640 × 480</td></tr>
+        <tr><td>Refresh</td><td class="v">60 Hz</td></tr>
+        <tr><td>Total frame timing</td><td class="v">800 × 525</td></tr>
+        <tr><td>Food placement</td><td class="v">LCG random</td></tr>
+      </table></div>
+      <figure><img src="images/thumbs/snake.jpg" alt="Monitor running the FPGA Snake game" loading="lazy"><figcaption>Running on the board over VGA.</figcaption></figure>
+      <div class="links"><a href="projects-html/project-snake.html">Full write-up</a><a class="ghost" href="https://github.com/vkang6378/EC311_project" target="_blank" rel="noopener">GitHub repo</a></div>` },
+
+  { id: 'u7', ref: 'U7', pn: 'TMP36', fn: 'TEMP MON', kind: 'to92', title: 'Temperature monitor', sub: 'Circuits and firmware',
+    html: `
+      <h3>General description</h3>
+      <p>A portable room monitor that reads a TMP36, shows the temperature on an LCD and sounds an LED and buzzer alert outside a set range. Circuit planned in Tinkercad, enclosure modeled in Onshape.</p>
+      <h3>Characteristics</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Sensor</td><td class="v">TMP36</td></tr>
+        <tr><td>Display</td><td class="v">16×2 I²C LCD</td></tr>
+        <tr><td>Units</td><td class="v">°F / °C</td></tr>
+      </table></div>
+      <figure><img src="images/thumbs/temp.jpg" alt="LCD showing Temperature(F): 82.62" loading="lazy"><figcaption>Finished enclosure.</figcaption></figure>
+      <div class="links"><a href="projects-html/project-temp-monitor.html">Full write-up and code</a></div>` },
+
+  { id: 'mh1', ref: 'MH1', pn: 'TRUSS', fn: '', kind: 'hole', title: 'Acrylic Warren truss', sub: 'Mechanical. Feb to May 2025. Every board needs a mounting hole',
+    html: `
+      <h3>General description</h3>
+      <p>Measured acrylic buckling in the lab, wrote a MATLAB solver for member forces and failure load, and iterated the truss geometry before building and testing.</p>
+      <h3>Mechanical characteristics</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Span</td><td class="v">31 in</td></tr>
+        <tr><td>Predicted max load</td><td class="v">65 ± 1.35 oz</td></tr>
+        <tr><td>Load to cost</td><td class="v">0.310 oz/$</td></tr>
+        <tr><td>Buckling fit (lab)</td><td class="v">−5.510·L + 101.1 oz</td></tr>
+      </table></div>
+      <div class="links"><a href="projects-html/project-truss.html">Full write-up and reports</a></div>` },
+
+  { id: 'j2', ref: 'J2', pn: 'EXPERIENCE', fn: '', kind: 'header', title: 'Experience', sub: 'Revision history',
+    html: `
+      <h3>Revision history</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Date</th><th>Role</th><th>Description</th></tr>
+        <tr><td class="v">Sept 2026–</td><td>Teaching Assistant, EC 410 Intro to Electronics, BU</td><td>Weekly labs on diode, BJT and MOSFET circuits. Grading lab reports and LTspice work.</td></tr>
+        <tr><td class="v">May–Jul 2026</td><td>Undergraduate Research Assistant, NTU Singapore</td><td>Flexible PMMA fiber microlaser sensors. See U2.</td></tr>
+        <tr><td class="v">Jan 2025–</td><td>Teaching Assistant, BE/EC 556 Optical Spectroscopic Imaging, BU</td><td>Office hours for a graduate course in laser physics, wave optics and spectroscopy.</td></tr>
+        <tr><td class="v">Nov 2024–</td><td>Undergraduate Research Assistant, Cheng Group, BU</td><td>VREF and SRP imaging systems. See U3.</td></tr>
+        <tr><td class="v">Jun 2024–Aug 2025</td><td>Software Engineering Intern, Pulp Internet Corporation</td><td>Data Stories templates and pipelines in JavaScript, Python and Streamlit. Persona Engine with OpenAI workflows and NLP.</td></tr>
+      </table></div>
+      <div class="links"><a href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Full resume</a></div>` },
+
+  { id: 'j1', ref: 'J1', pn: 'USB-C', fn: 'CONTACT', kind: 'usb', title: 'Contact', sub: 'Ordering information',
+    html: `
+      <p style="margin-top:14px">I'm looking for roles in optics, medical devices and hardware. Email is the fastest way to reach me.</p>
+      <h3>Ordering information</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Channel</th><th>Address</th></tr>
+        <tr><td>Email</td><td class="v" id="mailcell">${EMAIL}</td></tr>
+        <tr><td>LinkedIn</td><td class="v"><a href="https://www.linkedin.com/in/jessica-qiu1/" target="_blank" rel="noopener">jessica-qiu1</a></td></tr>
+        <tr><td>GitHub</td><td class="v"><a href="https://github.com/JessicaQiu0" target="_blank" rel="noopener">JessicaQiu0</a></td></tr>
+      </table></div>
+      <div class="links"><button type="button" id="copyMail">Copy email</button><a class="ghost" href="mailto:${EMAIL}">Open email app</a><a class="ghost" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume</a></div>
+      <p class="note" id="copyNote" aria-live="polite" style="margin-top:10px"></p>` },
+];
+const byId = Object.fromEntries(parts.map(p => [p.id, p]));
+const order = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'mh1', 'j2', 'j1'];
+
+/* ---------- Layouts (board coordinates: cx, cy, w, h) ---------- */
+const layouts = {
+  wide: { w: 1600, h: 900, pos: {
+    u1: [800, 450, 240, 240], u2: [330, 230, 240, 130], u3: [330, 460, 260, 140], u4: [330, 690, 240, 100],
+    u5: [1270, 230, 220, 130], u6: [1270, 460, 180, 180], u7: [1270, 690, 140, 80],
+    j2: [800, 112, 280, 60], j1: [800, 836, 130, 64], mh1: [92, 92, 64, 64] }, sw: [150, 836], fid: [[1530, 70], [70, 760]] },
+  tall: { w: 800, h: 1600, pos: {
+    u1: [400, 430, 270, 270], u2: [205, 800, 300, 150], u3: [595, 800, 300, 160], u4: [205, 1070, 300, 120],
+    u5: [595, 1070, 290, 140], u6: [205, 1330, 200, 200], u7: [595, 1320, 170, 100],
+    j2: [400, 130, 340, 70], j1: [400, 1528, 150, 76], mh1: [74, 74, 60, 60] }, sw: [100, 1520], fid: [[730, 60], [60, 1460], [730, 1530]] },
+};
+
+/* ---------- Helpers ---------- */
+const el = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+let seed = 7; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+/* Octilinear route: straight, 45-degree, straight. Leaves along the larger axis. */
+function route(a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], sx = Math.sign(dx) || 1, sy = Math.sign(dy) || 1;
+  const d = Math.min(Math.abs(dx), Math.abs(dy)), pts = [a];
+  if (Math.abs(dx) >= Math.abs(dy)) { const h = (Math.abs(dx) - d) / 2; const p1 = [a[0] + sx * h, a[1]]; pts.push(p1, [p1[0] + sx * d, p1[1] + sy * d]); }
+  else { const v = (Math.abs(dy) - d) / 2; const p1 = [a[0], a[1] + sy * v]; pts.push(p1, [p1[0] + sx * d, p1[1] + sy * d]); }
+  pts.push(b);
+  return 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
+}
+
+function drawPart(g, p, [cx, cy, w, h], big) {
+  const x = cx - w / 2, y = cy - h / 2, k = p.kind;
+  if (k === 'hole') {
+    el('circle', { cx, cy, r: w / 2 + 8, class: 'outline', 'stroke-width': 2 }, g);
+    el('circle', { cx, cy, r: w / 2, fill: 'var(--gold)' }, g);
+    el('circle', { cx, cy, r: w / 2 - 12, fill: 'var(--room)' }, g);
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; el('circle', { cx: cx + Math.cos(a) * (w / 2 - 5), cy: cy + Math.sin(a) * (w / 2 - 5), r: 2.4, fill: 'var(--room)' }, g); }
+    el('text', { x: cx + w / 2 + 18, y: cy - 4, class: 'silk', 'font-size': 15 * big, 'font-weight': 600 }, g).textContent = 'MH1';
+    el('text', { x: cx + w / 2 + 18, y: cy + 15 * big, class: 'silk', 'font-size': 13 * big, opacity: .8 }, g).textContent = 'TRUSS';
+    return;
+  }
+  if (k === 'header') {
+    el('rect', { x: x - 8, y: y - 8, width: w + 16, height: h + 16, class: 'outline', 'stroke-width': 2 }, g);
+    el('rect', { x, y, width: w, height: h, class: 'body', rx: 2 }, g);
+    const n = 8, st = w / n;
+    for (let r = 0; r < 2; r++) for (let i = 0; i < n; i++) {
+      const px = x + st * (i + .5), py = y + h * (r ? .73 : .27);
+      el('rect', { x: px - 9, y: py - 9, width: 18, height: 18, rx: i === 0 && r === 0 ? 0 : 9, class: 'pin' }, g);
+      el('rect', { x: px - 3.5, y: py - 3.5, width: 7, height: 7, fill: '#3b3340' }, g);
+    }
+    el('text', { x: x - 8, y: y - 18, class: 'silk', 'font-size': 15 * big, 'font-weight': 600 }, g).textContent = 'J2  EXPERIENCE';
+    return;
+  }
+  if (k === 'usb') {
+    el('rect', { x: x - 6, y: y - 6, width: w + 12, height: h + 12, class: 'outline', 'stroke-width': 2, 'stroke-dasharray': '6 5' }, g);
+    el('rect', { x, y, width: w, height: h, rx: 14, fill: '#b9b4c4' }, g);
+    el('rect', { x: x + 14, y: y + h / 2 - 10, width: w - 28, height: 20, rx: 10, fill: '#2a2530' }, g);
+    for (let i = 0; i < 6; i++) el('rect', { x: x + 26 + i * ((w - 52) / 5) - 2, y: y + h / 2 - 3, width: 4, height: 6, fill: 'var(--gold)' }, g);
+    el('text', { x: cx, y: y - 16, class: 'silk', 'font-size': 15 * big, 'font-weight': 600, 'text-anchor': 'middle' }, g).textContent = 'J1  CONTACT';
+    return;
+  }
+  el('rect', { x: x - 12, y: y - 12, width: w + 24, height: h + 24, class: 'outline', 'stroke-width': 2, rx: 2 }, g);
+  const lr = (k === 'bga' || k === 'to92') ? 0 : Math.max(3, Math.round(h / 22));
+  const tb = (k === 'qfp' || k === 'qfn' || k === 'mcu') ? Math.max(3, Math.round(w / 24)) : 0;
+  const plen = k === 'qfn' ? 6 : 11, pw = 7;
+  for (let i = 0; i < lr; i++) { const py = y + (h / lr) * (i + .5) - pw / 2; el('rect', { x: x - plen, y: py, width: plen, height: pw, class: 'pin' }, g); el('rect', { x: x + w, y: py, width: plen, height: pw, class: 'pin' }, g); }
+  for (let i = 0; i < tb; i++) { const px = x + (w / tb) * (i + .5) - pw / 2; el('rect', { x: px, y: y - plen, width: pw, height: plen, class: 'pin' }, g); el('rect', { x: px, y: y + h, width: pw, height: plen, class: 'pin' }, g); }
+  if (k === 'to92') for (let i = 0; i < 3; i++) el('rect', { x: cx - 34 + i * 34 - 4, y: y + h - 2, width: 8, height: 14, class: 'pin' }, g);
+  el('rect', { x, y, width: w, height: h, class: 'body', rx: k === 'to92' ? 14 : 3 }, g);
+  if (k === 'bga') { const n = 7, s = w / (n + 1); for (let i = 1; i <= n; i++) for (let j = 1; j <= n; j++) if (i === 1 || j === 1 || i === n || j === n) el('circle', { cx: x + s * i, cy: y + s * j, r: 2.2, fill: '#2c2734' }, g); }
+  el('circle', { cx: x + 12, cy: y + 12, r: 4, fill: '#3a3443' }, g);
+  const fs = (k === 'mcu' ? 28 : k === 'to92' ? 16 : 20) * big;
+  el('text', { x: cx, y: cy + (p.fn ? -1 : 6), class: 'pn', 'font-size': fs, 'text-anchor': 'middle' }, g).textContent = p.pn;
+  if (p.fn) el('text', { x: cx, y: cy + fs * .95, class: 'fn', 'font-size': fs * .6, 'text-anchor': 'middle', 'letter-spacing': '.08em' }, g).textContent = p.fn;
+  el('text', { x: x - 12, y: y - 22, class: 'silk', 'font-size': 15 * big, 'font-weight': 600 }, g).textContent = p.ref;
+}
+
+/* ---------- Build board ---------- */
+let layoutKey = null, nets = {}, current = null, booted = false;
+function build() {
+  const key = (innerWidth < 760 || innerWidth / innerHeight < .9) ? 'tall' : 'wide';
+  if (key === layoutKey) return false;
+  layoutKey = key; seed = 7; nets = {};
+  const L = layouts[key], big = key === 'tall' ? 1.25 : 1;
+  board.innerHTML = '';
+  board.setAttribute('viewBox', `0 0 ${L.w} ${L.h}`);
+  const defs = el('defs', {}, board);
+  const f = el('filter', { id: 'glow', x: '-20%', y: '-20%', width: '140%', height: '140%' }, defs);
+  el('feGaussianBlur', { stdDeviation: 3, result: 'b' }, f);
+  const m = el('feMerge', {}, f); el('feMergeNode', { in: 'b' }, m); el('feMergeNode', { in: 'SourceGraphic' }, m);
+  const pat = el('pattern', { id: 'pour', width: 14, height: 14, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
+  el('line', { x1: 0, y1: 0, x2: 0, y2: 14, stroke: 'var(--mask-edge)', 'stroke-width': 3 }, pat);
+
+  const root = el('g', { class: 'board' }, board);
+  el('rect', { x: 2, y: 2, width: L.w - 4, height: L.h - 4, rx: 28, fill: 'var(--mask)', stroke: 'var(--mask-edge)', 'stroke-width': 4 }, root);
+  el('rect', { x: 26, y: 26, width: L.w - 52, height: L.h - 52, rx: 18, fill: 'url(#pour)', opacity: .3 }, root);
+
+  const clear = (vx, vy, pad) => { for (const id in L.pos) { const [cx, cy, w, h] = L.pos[id]; if (Math.abs(vx - cx) < w / 2 + pad && Math.abs(vy - cy) < h / 2 + pad + 10) return false; } return true; };
+  for (let i = 0; i < 110; i++) {
+    const vx = 40 + rand() * (L.w - 80), vy = 40 + rand() * (L.h - 80);
+    if (!clear(vx, vy, 44)) continue;
+    el('circle', { cx: vx, cy: vy, r: 5, fill: 'var(--trace)' }, root);
+    el('circle', { cx: vx, cy: vy, r: 2, fill: 'var(--room)' }, root);
+  }
+  for (const [fx, fy] of L.fid) { el('circle', { cx: fx, cy: fy, r: 9, fill: 'var(--gold)' }, root); el('circle', { cx: fx, cy: fy, r: 16, fill: 'none', stroke: 'var(--silk)', 'stroke-opacity': .4, 'stroke-width': 1.5 }, root); }
+
+  const tx = L.w - 44, ty = key === 'wide' ? L.h - 40 : L.h - 120;
+  el('text', { x: tx, y: ty, class: 'silk', 'font-size': 15 * big, 'text-anchor': 'end', opacity: .75 }, root).textContent = 'JQ PORTFOLIO  REV 2026.10';
+  el('text', { x: tx, y: ty - 22 * big, class: 'silk', 'font-size': 13 * big, 'text-anchor': 'end', opacity: .55 }, root).textContent = 'DESIGNED IN BOSTON, MA';
+
+  // nets: U1 to every other part, two parallel traces each
+  const traceLayer = el('g', {}, root);
+  const [ux, uy, uw, uh] = L.pos.u1;
+  const sides = { l: [], r: [], t: [], b: [] };
+  for (const id of order) {
+    if (id === 'u1' || id === 'mh1') continue; // mounting hole ties to the ground pour, not to U1
+    const [cx, cy] = L.pos[id], dx = cx - ux, dy = cy - uy;
+    let side = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'l' : 'r') : (dy < 0 ? 't' : 'b');
+    if (key === 'tall' && id !== 'j2' && id !== 'mh1') side = 'b';
+    if (key === 'tall' && id === 'mh1') side = 'l';
+    sides[side].push(id);
+  }
+  for (const side in sides) {
+    const list = sides[side], horiz = side === 'l' || side === 'r';
+    list.sort((a, b) => horiz ? L.pos[a][1] - L.pos[b][1] : L.pos[a][0] - L.pos[b][0]);
+    list.forEach((id, i) => {
+      const [cx, cy, w, h] = L.pos[id];
+      const span = horiz ? uh : uw, slot = span / (list.length + 1) * (i + 1) - span / 2;
+      const g = el('g', { class: 'net', 'data-net': id }, traceLayer);
+      for (const off of [-8, 8]) {
+        let a, b;
+        if (horiz) {
+          const s = side === 'l' ? -1 : 1;
+          a = [ux + s * (uw / 2 + 14), uy + slot + off];
+          if (id === 'mh1') b = [cx + (w / 2 + 2) * Math.SQRT1_2 + off, cy + (w / 2 + 2) * Math.SQRT1_2 - off];
+          else b = [cx - s * (w / 2 + 14), cy + off];
+        } else {
+          const s = side === 't' ? -1 : 1;
+          a = [ux + slot + off * 1.2, uy + s * (uh / 2 + 14)];
+          const gap = id === 'j2' || id === 'j1' ? 10 : 14;
+          b = [cx + off * 1.6, cy - s * (h / 2 + gap)];
+        }
+        const d = route(a, b);
+        el('path', { d, class: 'trace', 'stroke-width': 6 }, g);
+        el('path', { d, class: 'flow', 'stroke-width': 3, 'stroke-dasharray': '10 18' }, g);
+        el('circle', { cx: b[0], cy: b[1], r: 6, fill: 'var(--gold)' }, g);
+      }
+      nets[id] = g;
+    });
+  }
+
+  // passives around U1
+  const smd = (x, y, label) => {
+    const gg = el('g', { transform: `translate(${x} ${y})` }, root);
+    el('rect', { x: -15, y: -7, width: 9, height: 14, fill: 'var(--gold)' }, gg);
+    el('rect', { x: 6, y: -7, width: 9, height: 14, fill: 'var(--gold)' }, gg);
+    el('rect', { x: -7, y: -6, width: 14, height: 12, fill: '#c9b48a' }, gg);
+    el('text', { x: 0, y: -14, class: 'silk', 'font-size': 11 * big, 'text-anchor': 'middle', opacity: .75 }, gg).textContent = label;
+  };
+  smd(ux - uw / 2 - 40, uy - uh / 2 - 36, 'C1'); smd(ux + uw / 2 + 40, uy - uh / 2 - 36, 'C2');
+  if (key === 'wide') { smd(ux - uw / 2 - 40, uy + uh / 2 + 40, 'R1'); smd(ux + uw / 2 + 40, uy + uh / 2 + 40, 'C3'); }
+
+  // power switch + LEDs
+  const [swx, swy] = L.sw;
+  const sw = el('g', { class: 'part', id: 'sw1', tabindex: 0, role: 'button', 'aria-label': 'Power switch. Replays the power-on.' }, root);
+  el('title', {}, sw).textContent = 'SW1: power the board again';
+  el('rect', { x: swx - 42, y: swy - 20, width: 84, height: 40, rx: 4, class: 'outline', 'stroke-width': 2 }, sw);
+  el('rect', { x: swx - 38, y: swy - 16, width: 76, height: 32, rx: 3, fill: '#d6d1de' }, sw);
+  el('rect', { x: swx + 2, y: swy - 12, width: 32, height: 24, rx: 3, fill: '#4a4252', id: 'knob' }, sw);
+  el('text', { x: swx - 42, y: swy - 30, class: 'silk', 'font-size': 14 * big, 'font-weight': 600 }, sw).textContent = 'SW1 PWR';
+  for (let i = 0; i < 3; i++) {
+    const lx = swx + 76 + i * 36;
+    el('rect', { x: lx - 9, y: swy - 6, width: 18, height: 12, fill: 'var(--gold)' }, root);
+    el('rect', { x: lx - 6, y: swy - 9, width: 12, height: 18, rx: 2, fill: '#4b2b3c', class: 'led' + (booted ? ' lit' : '') }, root);
+    el('text', { x: lx, y: swy - 18, class: 'silk', 'font-size': 11 * big, 'text-anchor': 'middle', opacity: .75 }, root).textContent = 'D' + (i + 1);
+  }
+  const press = () => boot();
+  sw.addEventListener('click', press);
+  sw.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); press(); } });
+
+  for (const id of order) {
+    const p = byId[id];
+    const g = el('g', { class: 'part', 'data-id': id, tabindex: 0, role: 'button', 'aria-label': `${p.ref}: ${p.title}. Open datasheet` }, root);
+    el('title', {}, g).textContent = `${p.ref}  ${p.title}`;
+    drawPart(g, p, L.pos[id], big);
+    g.addEventListener('mouseenter', () => energize(id));
+    g.addEventListener('mouseleave', () => energize(null));
+    g.addEventListener('focus', () => energize(id));
+    g.addEventListener('blur', () => energize(null));
+    g.addEventListener('click', () => openSheet(id));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSheet(id); } });
+  }
+  energize(null);
+  return true;
+}
+
+/* ---------- Energize: light the hovered part's net (U1 lights everything) ---------- */
+function energize(id) {
+  const show = id || current;
+  for (const k in nets) nets[k].classList.toggle('live', show === 'u1' || k === show);
+  board.querySelectorAll('.part[data-id]').forEach(g => g.classList.toggle('on', g.dataset.id === show));
+}
+
+/* ---------- Boot: current flows out from U1, then the LEDs light ---------- */
+let bootTimer;
+function boot() {
+  const L = layouts[layoutKey], knob = document.getElementById('knob');
+  const leds = board.querySelectorAll('.led');
+  clearTimeout(bootTimer);
+  leds.forEach(l => l.classList.remove('lit'));
+  booted = false;
+  if (knob) knob.setAttribute('x', L.sw[0] - 34);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { leds.forEach(l => l.classList.add('lit')); booted = true; if (knob) knob.setAttribute('x', L.sw[0] + 2); return; }
+  const flows = [...board.querySelectorAll('.flow')];
+  flows.forEach(p => { const len = p.getTotalLength(); p.style.animation = 'none'; p.style.transition = 'none'; p.style.strokeDasharray = `${len} ${len}`; p.style.strokeDashoffset = len; p.style.opacity = 1; });
+  bootTimer = setTimeout(() => {
+    if (knob) knob.setAttribute('x', L.sw[0] + 2);
+    flows.forEach((p, i) => { p.style.transition = `stroke-dashoffset 1s ${0.06 * (i >> 1)}s ease-in-out`; p.style.strokeDashoffset = 0; });
+    bootTimer = setTimeout(() => {
+      leds.forEach((l, i) => setTimeout(() => l.classList.add('lit'), i * 150));
+      flows.forEach(p => { p.style.transition = 'opacity .6s'; p.style.opacity = ''; });
+      setTimeout(() => flows.forEach(p => { p.style.transition = ''; p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.animation = ''; }), 650);
+      booted = true;
+    }, 1000 + 0.06 * (flows.length >> 1) * 1000);
+  }, 250);
+}
+
+/* ---------- Datasheet drawer ---------- */
+const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim'), doc = document.getElementById('doc'), head = document.getElementById('dsHead');
+let lastFocus = null;
+function openSheet(id, fromHash) {
+  const p = byId[id]; if (!p) return;
+  if (!sheet.classList.contains('open')) lastFocus = document.activeElement;
+  current = id; energize(id);
+  head.textContent = `${p.ref}  ${p.pn}  DATASHEET`;
+  doc.innerHTML = `<div class="partno">${p.ref} / ${p.pn}</div><h2 id="dsTitle">${p.title}</h2><p class="sub">${p.sub}</p>` + p.html;
+  doc.scrollTop = 0;
+  sheet.classList.add('open'); scrim.classList.add('open'); sheet.setAttribute('aria-hidden', 'false');
+  doc.focus({ preventScroll: true });
+  if (!fromHash) try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  wireDoc(id);
+}
+function closeSheet() {
+  sheet.classList.remove('open'); scrim.classList.remove('open'); sheet.setAttribute('aria-hidden', 'true');
+  current = null; energize(null);
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  lastFocus = null;
+}
+document.getElementById('close').addEventListener('click', closeSheet);
+scrim.addEventListener('click', closeSheet);
+addEventListener('keydown', e => { if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet(); });
+const step = d => openSheet(order[(order.indexOf(current) + d + order.length) % order.length]);
+document.getElementById('prev').addEventListener('click', () => step(-1));
+document.getElementById('next').addEventListener('click', () => step(1));
+document.addEventListener('click', e => { const t = e.target.closest('[data-open]'); if (t) openSheet(t.dataset.open); });
+
+function wireDoc(id) {
+  const c = document.getElementById('copyMail');
+  if (c) c.addEventListener('click', () => {
+    const note = document.getElementById('copyNote');
+    const sel = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('mailcell')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); note.textContent = 'Selected. Press Ctrl+C or ⌘C'; };
+    try { navigator.clipboard.writeText(EMAIL).then(() => { note.textContent = 'Email copied'; }, sel); } catch (err) { sel(); }
   });
+  if (id === 'u2') fiber();
+}
 
-  // Measured FSR (nm) vs stress (MPa); 33.21 MPa is single-mode.
-  const pts = [[0, 1.942], [6.17, 2.239], [14.50, 2.687], [21.06, 2.987], [26.93, 3.436], [33.21, 3.436 + 0.054 * (33.21 - 26.93)]]; // last span follows the 0.054 nm/MPa fit
+/* ---------- U2: fiber microlaser spectrum ---------- */
+function fiber() {
+  // measured FSR (nm) vs stress (MPa); last span follows the 0.054 nm/MPa fit
+  const pts = [[0, 1.942], [6.17, 2.239], [14.50, 2.687], [21.06, 2.987], [26.93, 3.436], [33.21, 3.436 + 0.054 * (33.21 - 26.93)]];
   const fsrAt = s => { for (let i = 1; i < pts.length; i++) if (s <= pts[i][0]) { const [a, fa] = pts[i - 1], [b, fb] = pts[i]; return fa + (fb - fa) * (s - a) / (b - a); } return pts.at(-1)[1]; };
-
-  const cv = document.getElementById('spec'), ctx = cv.getContext('2d');
-  const slider = document.getElementById('stress');
-  const o = { s: document.getElementById('stressOut'), f: document.getElementById('fsr'), d: document.getElementById('dfsr'), m: document.getElementById('modes') };
-  const L0 = 600, L1 = 640, C = 618;
-  let W, H, pad = { l: 4, r: 4, t: 14, b: 26 }, stress = 0, intro = 1;
-  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-
-  function size() { const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
-  const sx = l => pad.l + (l - L0) / (L1 - L0) * (W - pad.l - pad.r);
-  const sy = v => H - pad.b - v * (H - pad.t - pad.b);
-
-  function spectrum(s) {
-    const fsr = fsrAt(s), single = s >= 32.5;
-    // gain envelope narrows as stress rises, so fewer modes clear threshold
-    const env = 7.2 - 4.4 * (s / 33.21);
-    const modes = [];
-    const shift = 0.35 * s / 33.21;
-    for (let k = -8; k <= 8; k++) {
-      const l = C + shift + k * fsr;
-      let a = Math.exp(-((l - C) ** 2) / (2 * env * env));
-      a *= 0.86 + 0.14 * Math.cos(k * 1.7);
-      if (single) a = k === 0 ? 1 : 0;
-      if (a > 0.12 && l > L0 && l < L1) modes.push([l, a]);
-    }
-    return { fsr, modes, single };
-  }
-  function draw() {
-    const muted = css('--muted'), rule = css('--rule'), emit = css('--emit'), ink = css('--ink');
-    const { fsr, modes, single } = spectrum(stress);
+  const cv = document.getElementById('fml'), ctx = cv.getContext('2d'), sl = document.getElementById('stress');
+  const L0 = 600, L1 = 640, C = 618, pad = { l: 4, r: 4, t: 18, b: 24 };
+  let W = 0, H = 0;
+  const size = () => { const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  const sx = l => pad.l + (l - L0) / (L1 - L0) * (W - pad.l - pad.r), sy = v => H - pad.b - v * (H - pad.t - pad.b);
+  const spec = s => { const fsr = fsrAt(s), single = s >= 32.5, env = 7.2 - 4.4 * s / 33.21, shift = .35 * s / 33.21, modes = [];
+    for (let k = -8; k <= 8; k++) { const l = C + shift + k * fsr; let a = Math.exp(-((l - C) ** 2) / (2 * env * env)) * (.86 + .14 * Math.cos(k * 1.7)); if (single) a = k === 0 ? 1 : 0; if (a > .12 && l > L0 && l < L1) modes.push([l, a]); }
+    return { fsr, modes, single }; };
+  const draw = () => {
+    if (!W) return;
+    const s = +sl.value, { fsr, modes, single } = spec(s);
     ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = rule; ctx.lineWidth = 1;
-    for (let g = 0.25; g < 1.01; g += 0.25) { ctx.beginPath(); ctx.moveTo(pad.l, sy(g) + .5); ctx.lineTo(W - pad.r, sy(g) + .5); ctx.stroke(); }
-    ctx.beginPath(); ctx.moveTo(pad.l, H - pad.b + .5); ctx.lineTo(W - pad.r, H - pad.b + .5); ctx.strokeStyle = muted; ctx.stroke();
-    ctx.fillStyle = muted; ctx.font = '500 11px "JetBrains Mono", monospace'; ctx.textBaseline = 'top';
-    for (let t = 600; t <= 640; t += (W < 480 ? 10 : 5)) { const p = sx(t); ctx.fillRect(p, H - pad.b, 1, 4); ctx.textAlign = t === 600 ? 'left' : t === 640 ? 'right' : 'center'; ctx.fillText(t === 640 ? '640 nm' : t, p, H - pad.b + 8); }
-    // spectrum as a continuous trace of narrow Lorentzian lines
-    const w = 0.09;
-    ctx.beginPath();
-    for (let px = pad.l; px <= W - pad.r; px += 0.5) {
-      const l = L0 + (px - pad.l) / (W - pad.l - pad.r) * (L1 - L0);
-      let v = 0.015 + 0.02 * Math.exp(-((l - C) ** 2) / 60);
-      for (const [c, a] of modes) v += a * intro * w * w / ((l - c) ** 2 + w * w);
-      v = Math.min(v, 1);
-      px === pad.l ? ctx.moveTo(px, sy(v)) : ctx.lineTo(px, sy(v));
-    }
-    ctx.strokeStyle = emit; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
-    ctx.shadowColor = emit; ctx.shadowBlur = getComputedStyle(document.documentElement).colorScheme === 'dark' ? 8 : 0;
-    ctx.stroke(); ctx.shadowBlur = 0;
-    // FSR bracket between two strongest neighbours
-    if (!single && modes.length > 1 && intro > .9) {
-      const sorted = modes.slice().sort((a, b) => Math.abs(a[0] - C) - Math.abs(b[0] - C));
-      const [a, b] = [sorted[0], sorted[1]].sort((p, q) => p[0] - q[0]);
-      const y = sy(Math.max(a[1], b[1])) - 2, top = Math.max(pad.t + 2, y - 6);
-      ctx.strokeStyle = ink; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(sx(a[0]), top + 6); ctx.lineTo(sx(a[0]), top); ctx.lineTo(sx(b[0]), top); ctx.lineTo(sx(b[0]), top + 6); ctx.stroke();
-      ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText('FSR ' + fsr.toFixed(3) + ' nm', sx(b[0]) + 8, top + 2);
-    } else if (single) {
-      ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-      ctx.fillText('single mode', sx(modes[0][0]) + 10, pad.t + 8);
-    }
-  }
-  function update() {
-    stress = +slider.value;
-    const { fsr, modes, single } = spectrum(stress);
-    o.s.textContent = stress.toFixed(2) + ' MPa';
-    o.f.textContent = single ? '—' : fsr.toFixed(3) + ' nm';
-    o.d.textContent = single ? 'single mode' : '+' + (fsr - 1.942).toFixed(3) + ' nm';
-    o.m.textContent = single ? '1 (single mode)' : modes.length;
-    draw();
-  }
-  slider.addEventListener('input', update);
-  addEventListener('resize', () => { size(); draw(); });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', draw);
-  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  size(); update();
+    ctx.strokeStyle = '#e6e2ec'; ctx.lineWidth = 1;
+    for (let g = .25; g <= 1; g += .25) { ctx.beginPath(); ctx.moveTo(pad.l, sy(g) + .5); ctx.lineTo(W - pad.r, sy(g) + .5); ctx.stroke(); }
+    ctx.strokeStyle = '#5f5a6b'; ctx.beginPath(); ctx.moveTo(pad.l, H - pad.b + .5); ctx.lineTo(W - pad.r, H - pad.b + .5); ctx.stroke();
+    ctx.fillStyle = '#5f5a6b'; ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.textBaseline = 'top';
+    for (let t = 600; t <= 640; t += (W < 420 ? 10 : 5)) { ctx.fillRect(sx(t), H - pad.b, 1, 4); ctx.textAlign = t === 600 ? 'left' : t === 640 ? 'right' : 'center'; ctx.fillText(t === 640 ? '640 nm' : t, sx(t), H - pad.b + 7); }
+    const w = .09; ctx.beginPath();
+    for (let px = pad.l; px <= W - pad.r; px += .5) { const l = L0 + (px - pad.l) / (W - pad.l - pad.r) * (L1 - L0); let v = .015 + .02 * Math.exp(-((l - C) ** 2) / 60); for (const [c, a] of modes) v += a * w * w / ((l - c) ** 2 + w * w); px === pad.l ? ctx.moveTo(px, sy(Math.min(v, 1))) : ctx.lineTo(px, sy(Math.min(v, 1))); }
+    ctx.strokeStyle = '#d23c18'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#17141d'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    if (single) ctx.fillText('single mode', sx(modes[0][0]) + 8, pad.t - 4);
+    else { const so = modes.slice().sort((a, b) => Math.abs(a[0] - C) - Math.abs(b[0] - C)); const [a, b] = [so[0], so[1]].sort((p, q) => p[0] - q[0]); const y = pad.t - 8;
+      ctx.strokeStyle = '#17141d'; ctx.beginPath(); ctx.moveTo(sx(a[0]), y + 6); ctx.lineTo(sx(a[0]), y); ctx.lineTo(sx(b[0]), y); ctx.lineTo(sx(b[0]), y + 6); ctx.stroke();
+      ctx.fillText('FSR', sx(b[0]) + 6, y + 2); }
+    document.getElementById('sOut').textContent = s.toFixed(2) + ' MPa';
+    document.getElementById('fOut').textContent = single ? 'single mode' : fsr.toFixed(3) + ' nm';
+    document.getElementById('dOut').textContent = single ? 'n/a' : '+' + (fsr - 1.942).toFixed(3) + ' nm';
+    document.getElementById('mOut').textContent = single ? '1' : String(modes.length);
+  };
+  sl.addEventListener('input', draw);
+  new ResizeObserver(() => { size(); draw(); }).observe(cv);
   document.fonts?.ready.then(draw);
+}
 
-  // one-time intro: pump ramps above threshold, modes rise out of the fluorescence floor
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const t0 = performance.now();
-    intro = 0.35; draw();
-    const tick = n => { const p = Math.min(1, (n - t0) / 1400); intro = 0.35 + 0.65 * (1 - (1 - p) ** 3); draw(); if (p < 1) requestAnimationFrame(tick); };
-    requestAnimationFrame(tick);
-  }
+/* ---------- Start ---------- */
+build();
+addEventListener('resize', () => { if (build()) { booted = true; board.querySelectorAll('.led').forEach(l => l.classList.add('lit')); if (current) energize(current); } });
+const h = (location.hash || '').slice(1);
+if (byId[h]) openSheet(h, true);
+boot();
 })();
 </script>
 
