@@ -52,7 +52,7 @@ a { color: inherit; }
 
 /* Board */
 .stage { padding: 0 clamp(8px, 2vw, 24px) 10px; }
-#board { display: block; width: 100%; height: auto; max-height: calc(100dvh - 110px); margin: 0 auto; user-select: none; -webkit-user-select: none; }
+#board { display: block; width: 100%; height: auto; max-height: calc(100dvh - 150px); margin: 0 auto; user-select: none; -webkit-user-select: none; }
 .hint { text-align: center; color: var(--chip-ink); font: 400 .82rem/1.4 var(--mono); padding: 4px 16px 18px; margin: 0; }
 
 /* SVG parts */
@@ -63,8 +63,6 @@ a { color: inherit; }
 .part .body { fill: var(--chip); }
 .part .outline { fill: none; stroke: var(--silk); stroke-opacity: .55; transition: stroke .2s; }
 .part .pin { fill: var(--gold); }
-.part .pn { fill: var(--silk); font-family: var(--mono); font-weight: 600; }
-.part .fn { fill: var(--chip-ink); font-family: var(--mono); }
 .part:hover .outline, .part:focus-visible .outline, .part.on .outline { stroke: var(--gold); stroke-opacity: 1; }
 .part:focus-visible .body { stroke: var(--gold); stroke-width: 2; }
 .net.live .flow { opacity: 1; animation: run .9s linear infinite; }
@@ -117,6 +115,24 @@ a { color: inherit; }
 .scope .read { display: flex; flex-wrap: wrap; gap: 4px 18px; font: 500 .82rem/1.4 var(--mono); margin-top: 6px; }
 .scope .read b { color: #c2361a; font-weight: 600; }
 
+.highlights { color: var(--silk); font: 400 .92rem/1.45 var(--sans); margin: 4px 0 0; max-width: 80ch; opacity: .9; }
+.strip .left { display: grid; gap: 2px; min-width: 0; }
+.chipbtn[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.pulse { fill: none; stroke: var(--gold); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pulse 1.8s ease-out infinite; pointer-events: none; }
+@keyframes pulse { 0% { opacity: .95; transform: scale(1); } 100% { opacity: 0; transform: scale(1.18); } }
+.part .lab { fill: var(--silk); font-family: var(--sans); font-weight: 600; }
+.part .tagl { fill: var(--chip-ink); font-family: var(--mono); }
+.part .tagl.start { fill: var(--gold); }
+
+/* Simple view */
+#simple { padding: 0 clamp(8px, 2vw, 24px) 48px; }
+.book { background: var(--paper); color: var(--paper-ink); max-width: 860px; margin: 0 auto; border-radius: 6px; overflow: visible; color-scheme: light; padding-block: 8px 36px; }
+.book .entry { padding-block: 26px 10px; border-top: 1px solid var(--paper-rule); }
+.book .entry:first-child { border-top: 0; }
+.book .entry::after { content: ""; display: block; clear: both; }
+.book .toc { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 500 .85rem/1.4 var(--mono); padding: 18px 0 6px; }
+.book .toc a { color: var(--violet); }
+
 @media (max-width: 560px) {
   .doc .two { grid-template-columns: 1fr; }
   .doc .portrait { width: 96px; height: 96px; }
@@ -125,17 +141,22 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .sheet, .scrim { transition: none; }
   .net.live .flow { animation: none; }
+  .pulse { animation: none; opacity: .7; }
 }
 </style>
 
 </head>
 <body>
 <div class="strip">
-  <div class="who">
-    <h1>JESSICA QIU</h1>
-    <span>Electrical engineering, Boston University, 2027. Optics and medical devices.</span>
+  <div class="left">
+    <div class="who">
+      <h1>JESSICA QIU</h1>
+      <span>Electrical engineering, Boston University, 2027. Optics and medical devices.</span>
+    </div>
+    <p class="highlights">Optical sensor research at NTU Singapore and BU's Cheng Lab. TA for two engineering courses. Senior Design: a medical training simulator.</p>
   </div>
   <nav aria-label="Quick links">
+    <button class="chipbtn" type="button" id="viewBtn" aria-pressed="false">Simple view</button>
     <a class="chipbtn" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener"><span class="dot"></span>Resume</a>
     <button class="chipbtn" type="button" data-open="j1">Contact</button>
   </nav>
@@ -144,7 +165,8 @@ a { color: inherit; }
 <div class="stage">
   <svg id="board" role="group" aria-label="Portfolio circuit board. Each part opens a datasheet."></svg>
 </div>
-<p class="hint">Hover a part to power its traces. Click it to open its datasheet. Flip SW1 to power the board again.</p>
+<p class="hint" id="hint">Start with the center chip. Hover any part to power its traces, click to open it. Prefer a regular page? Use Simple view.</p>
+<div id="simple" hidden><article class="doc book" id="book"></article></div>
 
 <div class="scrim" id="scrim"></div>
 <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="dsTitle" aria-hidden="true">
@@ -166,7 +188,7 @@ const parts = [
       <img class="portrait" src="images/headshot.jpg" alt="Portrait of Jessica Qiu">
       <h3>General description</h3>
       <p>I'm an electrical engineering student at Boston University with a minor in biomedical engineering. I build optical sensors and imaging systems for medicine, and the circuits and firmware around them.</p>
-      <p>This board is my portfolio. Every part wired to me is something I've worked on.</p>
+      <p>Everything here is something I've built or researched. Open any section for specs, figures and write-ups.</p>
       <h3>Features</h3>
       <ul>
         <li>B.S. Electrical Engineering, minor in Biomedical Engineering, GPA 3.8</li>
@@ -346,6 +368,9 @@ const parts = [
       <div class="links"><button type="button" id="copyMail">Copy email</button><a class="ghost" href="mailto:${EMAIL}">Open email app</a><a class="ghost" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume</a></div>
       <p class="note" id="copyNote" aria-live="polite" style="margin-top:10px"></p>` },
 ];
+const labels = {
+  u1: ['About me', 'START HERE'], u2: ['Fiber laser sensor', 'NTU RESEARCH'], u3: ['Chemical imaging', 'BU CHENG LAB RESEARCH'],
+  u4: ['Senior Design', 'MEDICAL SIMULATOR'], u5: ['Wearable sensor', 'TENNIS BIOSENSOR'], u6: ['FPGA game', 'SNAKE OVER VGA'], u7: ['Temp monitor', 'ARDUINO BUILD'] };
 const byId = Object.fromEntries(parts.map(p => [p.id, p]));
 const order = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'mh1', 'j2', 'j1'];
 
@@ -375,6 +400,9 @@ function route(a, b) {
   return 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
 }
 
+function fit(t, max) {
+  try { let fsz = +t.getAttribute('font-size'); while (t.getComputedTextLength() > max && fsz > 9) { fsz -= 1; t.setAttribute('font-size', fsz); } } catch (e) {}
+}
 function drawPart(g, p, [cx, cy, w, h], big) {
   const x = cx - w / 2, y = cy - h / 2, k = p.kind;
   if (k === 'hole') {
@@ -383,7 +411,7 @@ function drawPart(g, p, [cx, cy, w, h], big) {
     el('circle', { cx, cy, r: w / 2 - 12, fill: 'var(--room)' }, g);
     for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; el('circle', { cx: cx + Math.cos(a) * (w / 2 - 5), cy: cy + Math.sin(a) * (w / 2 - 5), r: 2.4, fill: 'var(--room)' }, g); }
     el('text', { x: cx + w / 2 + 18, y: cy - 4, class: 'silk', 'font-size': 15 * big, 'font-weight': 600 }, g).textContent = 'MH1';
-    el('text', { x: cx + w / 2 + 18, y: cy + 15 * big, class: 'silk', 'font-size': 13 * big, opacity: .8 }, g).textContent = 'TRUSS';
+    el('text', { x: cx + w / 2 + 18, y: cy + 15 * big, class: 'silk', 'font-size': 13 * big, opacity: .85 }, g).textContent = 'TRUSS PROJECT';
     return;
   }
   if (k === 'header') {
@@ -395,7 +423,7 @@ function drawPart(g, p, [cx, cy, w, h], big) {
       el('rect', { x: px - 9, y: py - 9, width: 18, height: 18, rx: i === 0 && r === 0 ? 0 : 9, class: 'pin' }, g);
       el('rect', { x: px - 3.5, y: py - 3.5, width: 7, height: 7, fill: '#3b3340' }, g);
     }
-    el('text', { x: x - 8, y: y - 18, class: 'silk', 'font-size': 15 * big, 'font-weight': 600 }, g).textContent = 'J2  EXPERIENCE';
+    el('text', { x: x - 8, y: y - 18, class: 'silk', 'font-size': 17 * big, 'font-weight': 600 }, g).textContent = big > 1 ? 'J2  EXPERIENCE' : 'J2  EXPERIENCE: JOBS AND TEACHING';
     return;
   }
   if (k === 'usb') {
@@ -416,14 +444,16 @@ function drawPart(g, p, [cx, cy, w, h], big) {
   el('rect', { x, y, width: w, height: h, class: 'body', rx: k === 'to92' ? 14 : 3 }, g);
   if (k === 'bga') { const n = 7, s = w / (n + 1); for (let i = 1; i <= n; i++) for (let j = 1; j <= n; j++) if (i === 1 || j === 1 || i === n || j === n) el('circle', { cx: x + s * i, cy: y + s * j, r: 2.2, fill: '#2c2734' }, g); }
   el('circle', { cx: x + 12, cy: y + 12, r: 4, fill: '#3a3443' }, g);
-  const fs = (k === 'mcu' ? 28 : k === 'to92' ? 16 : 20) * big;
-  el('text', { x: cx, y: cy + (p.fn ? -1 : 6), class: 'pn', 'font-size': fs, 'text-anchor': 'middle' }, g).textContent = p.pn;
-  if (p.fn) el('text', { x: cx, y: cy + fs * .95, class: 'fn', 'font-size': fs * .6, 'text-anchor': 'middle', 'letter-spacing': '.08em' }, g).textContent = p.fn;
-  el('text', { x: x - 12, y: y - 22, class: 'silk', 'font-size': 15 * big, 'font-weight': 600 }, g).textContent = p.ref;
+  const [lab, tag] = labels[p.id] || [p.title, ''];
+  let fs = (k === 'mcu' ? 34 : k === 'to92' ? 18 : 23) * big;
+  const t1 = el('text', { x: cx, y: cy + 2, class: 'lab', 'font-size': fs, 'text-anchor': 'middle' }, g); t1.textContent = lab;
+  const t2 = el('text', { x: cx, y: cy + fs * .95, class: 'tagl' + (p.id === 'u1' ? ' start' : ''), 'font-size': Math.max(11, fs * .5), 'text-anchor': 'middle', 'letter-spacing': '.06em' }, g); t2.textContent = tag;
+  fit(t1, w - 22); fit(t2, w - 22);
+  el('text', { x: x - 12, y: y - 22, class: 'silk', 'font-size': 14 * big, 'font-weight': 600, opacity: .85 }, g).textContent = `${p.ref}  ${p.pn}`;
 }
 
 /* ---------- Build board ---------- */
-let layoutKey = null, nets = {}, current = null, booted = false;
+let layoutKey = null, nets = {}, current = null, booted = false, explored = false;
 function build() {
   const key = (innerWidth < 760 || innerWidth / innerHeight < .9) ? 'tall' : 'wide';
   if (key === layoutKey) return false;
@@ -537,6 +567,7 @@ function build() {
     g.addEventListener('click', () => openSheet(id));
     g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSheet(id); } });
   }
+  if (!explored) { const [px, py, pw, ph] = L.pos.u1; el('rect', { x: px - pw / 2 - 18, y: py - ph / 2 - 18, width: pw + 36, height: ph + 36, rx: 6, class: 'pulse', id: 'pulse' }, root); }
   energize(null);
   return true;
 }
@@ -577,6 +608,7 @@ const sheet = document.getElementById('sheet'), scrim = document.getElementById(
 let lastFocus = null;
 function openSheet(id, fromHash) {
   const p = byId[id]; if (!p) return;
+  explored = true; document.getElementById('pulse')?.remove();
   if (!sheet.classList.contains('open')) lastFocus = document.activeElement;
   current = id; energize(id);
   head.textContent = `${p.ref}  ${p.pn}  DATASHEET`;
@@ -609,7 +641,7 @@ function wireDoc(id) {
     const sel = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('mailcell')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); note.textContent = 'Selected. Press Ctrl+C or ⌘C'; };
     try { navigator.clipboard.writeText(EMAIL).then(() => { note.textContent = 'Email copied'; }, sel); } catch (err) { sel(); }
   });
-  if (id === 'u2') fiber();
+  if (id === 'u2' && document.getElementById('fml')) fiber();
 }
 
 /* ---------- U2: fiber microlaser spectrum ---------- */
@@ -652,11 +684,34 @@ function fiber() {
   document.fonts?.ready.then(draw);
 }
 
+/* ---------- Simple view: the same content as one scrolling page ---------- */
+const simpleOrder = ['u1', 'u2', 'u3', 'j2', 'u4', 'u5', 'u6', 'u7', 'mh1', 'j1'];
+const viewBtn = document.getElementById('viewBtn'), simple = document.getElementById('simple'), book = document.getElementById('book');
+const stage = document.querySelector('.stage'), hint = document.getElementById('hint');
+function setView(mode, save) {
+  const on = mode === 'simple';
+  if (on && sheet.classList.contains('open')) closeSheet();
+  stage.hidden = on; hint.hidden = on; simple.hidden = !on;
+  viewBtn.textContent = on ? 'Board view' : 'Simple view';
+  viewBtn.setAttribute('aria-pressed', String(on));
+  if (on) {
+    const short = { u1: 'About', u2: 'NTU research', u3: 'Cheng Lab research', j2: 'Experience', u4: 'Senior Design', u5: 'Biosensor', u6: 'FPGA Snake', u7: 'Temp monitor', mh1: 'Truss', j1: 'Contact' };
+    book.innerHTML = '<nav class="toc" aria-label="Sections">' + simpleOrder.map(id => `<a href="#s-${id}" data-jump="${id}">${short[id]}</a>`).join('') + '</nav>' +
+      simpleOrder.map(id => { const p = byId[id]; return `<section class="entry" id="s-${id}"><div class="partno">${p.ref} / ${p.pn}</div><h2>${p.title}</h2><p class="sub">${p.sub}</p>${p.html}</section>`; }).join('');
+    wireDoc('u2');
+  } else book.innerHTML = '';
+  if (save) try { localStorage.setItem('jq-view', mode); } catch (e) {}
+}
+viewBtn.addEventListener('click', () => setView(simple.hidden ? 'simple' : 'board', true));
+book.addEventListener('click', e => { const a = e.target.closest('[data-jump]'); if (a) { e.preventDefault(); document.getElementById('s-' + a.dataset.jump)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } });
+
 /* ---------- Start ---------- */
 build();
 addEventListener('resize', () => { if (build()) { booted = true; board.querySelectorAll('.led').forEach(l => l.classList.add('lit')); if (current) energize(current); } });
 const h = (location.hash || '').slice(1);
-if (byId[h]) openSheet(h, true);
+let saved = null; try { saved = localStorage.getItem('jq-view'); } catch (e) {}
+if (h === 'simple' || saved === 'simple') setView('simple');
+else if (byId[h]) openSheet(h, true);
 boot();
 })();
 </script>
