@@ -1,40 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap");
+/* Matches the palette in index.html */
 :root {
-  --bg: #0b0d12;
-  --surface: #11141b;
-  --card: #151a22;
-  --text: #e8edf6;
-  --muted: #a9b2c7;
-  --brand: #8aa9ff;
-  --brand-2: #b58cff;
-  --glow: 0 0 40px rgba(138,169,255,.35), 0 0 80px rgba(181,140,255,.25);
-  --radius: 18px;
-  --shadow: 0 8px 24px rgba(0,0,0,.35);
+  --bg: #f3f5f7; --surface: #ffffff; --card: #ffffff; --text: #15202b; --muted: #56626f;
+  --brand: #b8285f; --brand-2: #b8285f;
+  --glow: 0 0 0 1px #b8285f; --radius: 10px; --shadow: none;
 }
-
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #f7f8fc;
-    --surface: #ffffff;
-    --card: #ffffff;
-    --text: #0b0d12;
-    --muted: #566072;
-    --brand: #4f6cff;
-    --brand-2: #8f5bff;
-    --shadow: 0 8px 24px rgba(0,0,0,.08);
+    --bg: #0e151c; --surface: #151f29; --card: #151f29; --text: #e4e9ee; --muted: #97a3af;
+    --brand: #f17aa5; --brand-2: #f17aa5; --glow: 0 0 0 1px #f17aa5;
   }
 }
+h1, h2, h3 { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.01em; }
+pre, code { font-family: "IBM Plex Mono", ui-monospace, monospace; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
   color: var(--text);
-  background:
-    radial-gradient(1200px 800px at 80% -10%, rgba(108,128,255,.12), transparent 60%),
-    radial-gradient(1200px 800px at 0% 10%, rgba(181,140,255,.12), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   line-height: 1.6;
 }
 
