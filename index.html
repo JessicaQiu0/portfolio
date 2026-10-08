@@ -116,6 +116,7 @@ a { color: inherit; }
 .scope .read b { color: #c2361a; font-weight: 600; }
 
 .highlights { color: var(--silk); font: 400 .92rem/1.45 var(--sans); margin: 4px 0 0; max-width: 80ch; opacity: .9; }
+.highlights.muted2 { color: var(--chip-ink); font-size: .88rem; }
 .strip .left { display: grid; gap: 2px; min-width: 0; }
 .chipbtn[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
 .pulse { fill: none; stroke: var(--gold); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pulse 1.8s ease-out infinite; pointer-events: none; }
@@ -151,9 +152,10 @@ a { color: inherit; }
   <div class="left">
     <div class="who">
       <h1>JESSICA QIU</h1>
-      <span>Electrical engineering, Boston University, 2027. Optics and medical devices.</span>
+      <span>Electrical engineering, Boston University, 2027</span>
     </div>
-    <p class="highlights">Optical sensor research at NTU Singapore and BU's Cheng Lab. TA for two engineering courses. Senior Design: a medical training simulator.</p>
+    <p class="highlights">I like working with whole systems: building them, troubleshooting them, and breaking them down until I understand why they work or fail. Medical devices are where I most want to do it.</p>
+    <p class="highlights muted2">Optical sensor research at NTU Singapore and BU's Cheng Lab. TA for two engineering courses. Senior Design: a medical training simulator.</p>
   </div>
   <nav aria-label="Quick links">
     <button class="chipbtn" type="button" id="viewBtn" aria-pressed="false">Simple view</button>
@@ -187,7 +189,8 @@ const parts = [
     html: `
       <img class="portrait" src="images/headshot.jpg" alt="Portrait of Jessica Qiu">
       <h3>General description</h3>
-      <p>I'm an electrical engineering student at Boston University with a minor in biomedical engineering. I build optical sensors and imaging systems for medicine, and the circuits and firmware around them.</p>
+      <p>I'm an electrical engineering student at Boston University with a minor in biomedical engineering. What I enjoy most is a whole system I can build on, troubleshoot and break down into parts. Problem solving is the fun part.</p>
+      <p>I'd most like to do that on medical devices. So far that's meant optical sensors, imaging systems, and the circuits and firmware around them.</p>
       <p>Everything here is something I've built or researched. Open any section for specs, figures and write-ups.</p>
       <h3>Features</h3>
       <ul>
