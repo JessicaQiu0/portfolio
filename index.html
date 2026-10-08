@@ -5,166 +5,184 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="images/headshot.jpg">
 <title>Jessica Qiu</title>
-<meta name="description" content="Jessica Qiu, electrical engineering at Boston University. Medical devices, optical imaging, embedded systems and FPGA design.">
+<meta name="description" content="Jessica Qiu, electrical engineering at Boston University. Optical sensors, nonlinear vibrational imaging and medical devices.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one left-aligned 1120px column. Hero = name + portrait, then a full-width spectrum trace as the signature.
-   Work below in a 2-up grid; specs read like a datasheet line under each build. */
+/* Layout: optics-bench page. Serif name, then a live "instrument" panel (the fiber microlaser spectrum) as the hero.
+   Research gets the most room; experience is a dated list; projects are compact rows. Left-aligned, 1160px column. */
 :root {
-  --paper: #f3f5f7;
-  --panel: #ffffff;
-  --ink: #15202b;
-  --muted: #56626f;
-  --rule: #d6dce2;
-  --accent: #b8285f;
-  --accent-soft: #f6dbe5;
-  --trace-ghost: #c9d1d9;
-  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  --wrap: 1120px;
-  color-scheme: light;
+  --ground: #0f1226;
+  --raised: #171b37;
+  --ink: #eceaf5;
+  --muted: #a4a7c4;
+  --rule: #2a2f55;
+  --emit: #ff6b3d;     /* ~615 nm lasing emission */
+  --pump: #5ad08e;     /* 532 nm pump */
+  --plate: #ffffff;    /* figure plates for white-background diagrams */
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --sans: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0e151c; --panel: #151f29; --ink: #e4e9ee; --muted: #97a3af;
-    --rule: #263340; --accent: #f17aa5; --accent-soft: #3a1d2a; --trace-ghost: #2b3947;
-    color-scheme: dark;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --ground: #f5f6fb; --raised: #ffffff; --ink: #151834; --muted: #565a7a;
+    --rule: #dcdeeb; --emit: #d43f16; --pump: #1d8a4b; --plate: #ffffff;
+    color-scheme: light;
   }
 }
-:root[data-theme="dark"] {
-  --paper: #0e151c; --panel: #151f29; --ink: #e4e9ee; --muted: #97a3af;
-  --rule: #263340; --accent: #f17aa5; --accent-soft: #3a1d2a; --trace-ghost: #2b3947;
-  color-scheme: dark;
+:root[data-theme="light"] {
+  --ground: #f5f6fb; --raised: #ffffff; --ink: #151834; --muted: #565a7a;
+  --rule: #dcdeeb; --emit: #d43f16; --pump: #1d8a4b; --plate: #ffffff;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font: 400 1.0625rem/1.65 var(--body);
-  -webkit-font-smoothing: antialiased;
-}
+body { margin: 0; background: var(--ground); color: var(--ink); font: 400 1.05rem/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; display: block; }
 a { color: inherit; }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
-.wrap { max-width: var(--wrap); margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
-
-h1, h2, h3 { font-family: var(--display); line-height: 1.08; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
-h2 { font-size: clamp(1.75rem, 3.4vw, 2.5rem); font-weight: 700; }
-h3 { font-size: 1.3rem; font-weight: 700; }
-p { margin: 0; }
-.lede { color: var(--muted); max-width: 62ch; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--emit); outline-offset: 3px; }
+p, h1, h2, h3, figure, dl, dd { margin: 0; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); }
+h1, h2 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; line-height: 1; text-wrap: balance; }
+h2 { font-size: clamp(2.4rem, 5vw, 3.6rem); }
+h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.3; text-wrap: balance; }
+.muted { color: var(--muted); }
 
 /* Header */
-.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--rule);
-}
-.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
-.wordmark { font-family: var(--display); font-weight: 800; font-size: 1.15rem; text-decoration: none; }
-.top nav { display: flex; gap: clamp(14px, 3vw, 28px); font-size: .95rem; font-weight: 500; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--ground) 86%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.mark { font-family: var(--serif); font-size: 1.45rem; text-decoration: none; white-space: nowrap; }
+.top nav { display: flex; align-items: center; gap: clamp(12px, 2.6vw, 26px); font-size: .95rem; font-weight: 500; }
 .top nav a { text-decoration: none; color: var(--muted); }
 .top nav a:hover { color: var(--ink); }
+.top nav a.pill { color: var(--ink); border: 1px solid var(--rule); padding: 6px 14px; border-radius: 999px; }
 
 /* Hero */
-.hero { padding-block: clamp(48px, 8vw, 96px) 0; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(24px, 5vw, 64px); align-items: end; }
-.hero h1 { font-size: clamp(3.4rem, 11vw, 8.5rem); font-weight: 800; letter-spacing: -0.035em; line-height: .92; }
-.hero .intro { margin-top: 28px; font-size: clamp(1.1rem, 1.6vw, 1.3rem); max-width: 40ch; line-height: 1.5; }
-.hero .intro + p { margin-top: 14px; color: var(--muted); max-width: 52ch; }
-.portrait { width: clamp(150px, 20vw, 230px); height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; border-radius: 6px; }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-.btn {
-  display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px;
-  font: 600 .95rem/1 var(--body); text-decoration: none; cursor: pointer;
-  border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
-}
-.btn.primary { background: var(--ink); color: var(--paper); }
-.btn:hover { border-color: var(--accent); }
-.btn.primary:hover { background: var(--accent); color: var(--paper); }
+.hero { padding-block: clamp(44px, 7vw, 88px) 0; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: clamp(20px, 5vw, 64px); align-items: end; }
+.hero h1 { font-size: clamp(4rem, 12vw, 9.5rem); line-height: .88; letter-spacing: -0.02em; }
+.hero .intro { margin-top: 26px; font-size: clamp(1.15rem, 1.8vw, 1.4rem); line-height: 1.45; max-width: 36ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 18px; color: var(--muted); font-size: .95rem; }
+.portrait { width: clamp(130px, 17vw, 200px); height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 28%; border-radius: 4px; filter: saturate(.9); }
 
-/* Spectrum */
-.spectrum { margin-top: clamp(40px, 6vw, 72px); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 18px 12px; }
-.spectrum canvas { width: 100%; height: clamp(150px, 20vw, 210px); display: block; cursor: crosshair; touch-action: pan-y; }
-.spectrum figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; font-size: .85rem; color: var(--muted); margin-top: 8px; }
-.readout { font-family: var(--mono); font-size: .8rem; color: var(--accent); font-variant-numeric: tabular-nums; min-height: 1.4em; }
+/* Instrument */
+.instrument { margin-top: clamp(36px, 5vw, 60px); background: var(--raised); border: 1px solid var(--rule); border-radius: 8px; padding: clamp(16px, 2.6vw, 28px); }
+.inst-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 20px; }
+.inst-head h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+.inst-head p { color: var(--muted); font-size: .92rem; max-width: 58ch; }
+.inst-body { display: grid; grid-template-columns: minmax(0, 1fr) 15rem; gap: clamp(16px, 3vw, 32px); margin-top: 18px; align-items: stretch; }
+#spec { width: 100%; height: clamp(190px, 24vw, 270px); display: block; }
+.controls { display: grid; gap: 14px; align-content: start; }
+.controls label { font-size: .9rem; color: var(--muted); display: flex; justify-content: space-between; }
+.controls label output { font-family: var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--emit); }
+.readouts { display: grid; gap: 0; }
+.readouts div { display: flex; justify-content: space-between; gap: 12px; padding-block: 9px; border-top: 1px solid var(--rule); font-size: .9rem; }
+.readouts dt { color: var(--muted); }
+.readouts dd { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.readouts dd.hot { color: var(--emit); }
+.inst-foot { margin-top: 14px; font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.inst-foot .pump::before, .inst-foot .emit::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; }
+.inst-foot .pump::before { background: var(--pump); }
+.inst-foot .emit::before { background: var(--emit); }
 
 /* Sections */
-section { padding-block: clamp(56px, 8vw, 104px) 0; }
-.sec-head { display: grid; gap: 12px; margin-bottom: 36px; }
+section { padding-block: clamp(64px, 9vw, 112px) 0; }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 12px clamp(24px, 5vw, 64px); align-items: end; margin-bottom: clamp(28px, 4vw, 44px); }
+.sec-head p { color: var(--muted); max-width: 60ch; }
 
-/* Featured: senior design */
-.feature {
-  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px);
-  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: clamp(22px, 4vw, 44px);
-}
-.status { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; color: var(--accent); }
-.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-.feature h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); margin-top: 10px; }
-.feature p + p { margin-top: 14px; }
-.feature .body p { color: var(--muted); }
-.feature .body p:first-of-type { color: var(--ink); margin-top: 16px; }
-.specs { display: grid; gap: 0; align-content: start; margin: 0; }
-.specs div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 16px; padding-block: 14px; border-top: 1px solid var(--rule); }
-.specs div:last-child { border-bottom: 1px solid var(--rule); }
-.specs dt { font-family: var(--display); font-weight: 700; font-size: 1.35rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.specs dd { margin: 0; color: var(--muted); font-size: .95rem; }
+/* Studies */
+.study { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: clamp(24px, 5vw, 64px); padding-block: clamp(28px, 4vw, 44px); border-top: 1px solid var(--rule); }
+.study .where { display: grid; gap: 4px; font-size: .95rem; color: var(--muted); align-content: start; }
+.study .where strong { color: var(--ink); font-weight: 600; font-size: 1rem; }
+.study .where .when { color: var(--emit); font-weight: 600; }
+.study h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.08; }
+.study .text { display: grid; gap: 14px; }
+.study .text p { color: var(--muted); max-width: 64ch; }
+.study .text p.lead { color: var(--ink); }
+.results { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 8px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.results div { padding: 14px 14px 14px 0; display: grid; gap: 2px; align-content: start; }
+.results div + div { padding-left: 14px; border-left: 1px solid var(--rule); }
+.results dt { font-family: var(--serif); font-size: clamp(1.35rem, 2vw, 1.65rem); line-height: 1.1; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.results dd { font-size: .85rem; color: var(--muted); line-height: 1.4; }
+.figs { display: grid; gap: 12px; margin-top: 10px; }
+.figs.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.figs.hand { grid-template-columns: minmax(0, .75fr) minmax(0, 2fr); align-items: start; }
+.figs figure { display: grid; gap: 6px; }
+.figs figcaption { font-size: .82rem; color: var(--muted); }
+.plate { background: var(--plate); border-radius: 4px; padding: 6px; }
+.figs img { border-radius: 3px; width: 100%; height: auto; }
+.credit { font-size: .85rem; color: var(--muted); }
 
-/* Project grid */
-.builds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 4vw, 48px) clamp(20px, 3vw, 36px); margin-top: clamp(48px, 6vw, 72px); }
-.build { display: grid; gap: 14px; text-decoration: none; align-content: start; }
-.build .shot { aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: var(--panel); border: 1px solid var(--rule); }
-.build .shot img, .build .shot svg { width: 100%; height: 100%; object-fit: cover; }
-.build:hover .shot { border-color: var(--accent); }
-.build:hover h3 { color: var(--accent); }
-.build .meta { font-size: .88rem; color: var(--muted); }
-.build p { color: var(--muted); }
-.build .figures { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: .9rem; font-variant-numeric: tabular-nums; }
-.build .figures b { font-weight: 600; color: var(--ink); }
-.more { margin-top: 48px; border-top: 1px solid var(--rule); }
-.more div { display: grid; grid-template-columns: 14rem minmax(0, 1fr); gap: 16px; padding-block: 16px; border-bottom: 1px solid var(--rule); }
-.more strong { font-weight: 600; }
-.more span { color: var(--muted); }
+/* Experience */
+.jobs { border-top: 1px solid var(--rule); }
+.job { display: grid; grid-template-columns: 11rem minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px clamp(18px, 3vw, 40px); padding-block: 22px; border-bottom: 1px solid var(--rule); }
+.job time { font-size: .9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.job h3 { font-size: 1.08rem; }
+.job .org { color: var(--muted); font-size: .95rem; }
+.job p { color: var(--muted); font-size: .97rem; }
 
-/* Research */
-.research { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: clamp(24px, 5vw, 64px); }
-.research .where { color: var(--muted); font-size: .95rem; margin-top: 12px; }
-.research .body p + p { margin-top: 16px; }
-.terms { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; padding: 0; list-style: none; }
-.terms li { font-size: .85rem; padding: 5px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); }
+/* Projects */
+.feature { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); padding: clamp(20px, 3.4vw, 36px); background: var(--raised); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 18px; }
+.feature .tag { color: var(--emit); font-weight: 600; font-size: .9rem; }
+.feature h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 3vw, 2.2rem); line-height: 1.08; margin-top: 6px; }
+.feature p { color: var(--muted); margin-top: 12px; max-width: 60ch; }
+.feature dl { border-top: 1px solid var(--rule); align-self: start; }
+.feature dl div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 14px; padding-block: 12px; border-bottom: 1px solid var(--rule); }
+.feature dt { font-family: var(--serif); font-size: 1.5rem; line-height: 1.1; }
+.feature dd { color: var(--muted); font-size: .92rem; }
+.rows { display: grid; }
+.row { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: clamp(14px, 3vw, 32px); align-items: center; padding-block: 18px; border-bottom: 1px solid var(--rule); text-decoration: none; }
+.row img, .row svg { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; background: var(--plate); }
+.row h3 { font-size: 1.12rem; }
+.row p { color: var(--muted); font-size: .96rem; margin-top: 4px; max-width: 64ch; }
+.row .go { color: var(--muted); font-size: .9rem; white-space: nowrap; }
+.row:hover h3, .row:hover .go { color: var(--emit); }
 
-/* Toolkit */
-.toolkit { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
-.toolkit h3 { font-size: 1.05rem; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
-.toolkit ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; color: var(--muted); font-size: .97rem; }
+/* Skills */
+.skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 4vw, 48px); }
+.skills h3 { font-size: 1rem; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+.skills ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 5px; color: var(--muted); font-size: .97rem; }
 
 /* Contact */
-.contact { padding-block-end: clamp(56px, 8vw, 96px); }
-.contact .big { font-family: var(--display); font-weight: 800; font-size: clamp(2rem, 6vw, 4.2rem); letter-spacing: -0.03em; line-height: 1; text-decoration: none; overflow-wrap: anywhere; }
-.contact .big:hover { color: var(--accent); }
-.contact .actions { margin-top: 24px; }
-.copied { font-size: .9rem; color: var(--accent); align-self: center; }
+.contact { padding-block-end: clamp(64px, 9vw, 104px); }
+.contact .big { display: inline-block; font-family: var(--serif); font-size: clamp(2.2rem, 7vw, 5rem); line-height: 1; text-decoration: none; overflow-wrap: anywhere; }
+.contact .big:hover { color: var(--emit); }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; align-items: center; }
+.btn { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--rule); background: transparent; color: var(--ink); font: 600 .95rem/1 var(--sans); text-decoration: none; cursor: pointer; }
+.btn:hover { border-color: var(--emit); }
+.btn.solid { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.btn.solid:hover { background: var(--emit); border-color: var(--emit); }
+.note { font-size: .9rem; color: var(--emit); }
 footer { border-top: 1px solid var(--rule); color: var(--muted); font-size: .88rem; }
-footer .wrap { padding-block: 22px 28px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+footer .wrap { padding-block: 22px 28px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 
-@media (max-width: 880px) {
-  .feature, .research { grid-template-columns: 1fr; }
-  .toolkit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .sec-head, .study, .feature { grid-template-columns: 1fr; }
+  .inst-body { grid-template-columns: 1fr; }
+  .controls { grid-template-columns: 1fr 1fr; column-gap: 24px; }
+  .controls .slider { grid-column: 1 / -1; }
+  .job { grid-template-columns: 9rem minmax(0, 1fr); }
+  .job p { grid-column: 2; }
 }
 @media (max-width: 640px) {
   .hero-grid { grid-template-columns: 1fr; }
-  .portrait { grid-row: 1; width: 120px; }
-  .builds { grid-template-columns: 1fr; }
-  .more div { grid-template-columns: 1fr; gap: 2px; }
-  .top nav a.hide-sm { display: none; }
-  .specs div { grid-template-columns: 6.5rem minmax(0, 1fr); }
+  .portrait { grid-row: 1; width: 110px; }
+  .results { grid-template-columns: 1fr 1fr; }
+  .results div:nth-child(3) { padding-left: 0; border-left: 0; }
+  .results div:nth-child(n+3) { border-top: 1px solid var(--rule); }
+  .figs.two, .figs.hand { grid-template-columns: 1fr; }
+  .controls { grid-template-columns: 1fr; }
+  .job { grid-template-columns: 1fr; gap: 4px; }
+  .job p { grid-column: 1; }
+  .row { grid-template-columns: 6rem minmax(0, 1fr); }
+  .row .go { display: none; }
+  .skills { grid-template-columns: 1fr; }
+  .top nav a.opt { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
@@ -173,12 +191,13 @@ footer .wrap { padding-block: 22px 28px; display: flex; justify-content: space-b
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="wordmark" href="#top">Jessica Qiu</a>
+    <a class="mark" href="#top">Jessica Qiu</a>
     <nav aria-label="Sections">
-      <a href="#work">Work</a>
       <a href="#research">Research</a>
-      <a href="#toolkit" class="hide-sm">Toolkit</a>
+      <a href="#experience" class="opt">Experience</a>
+      <a href="#projects" class="opt">Projects</a>
       <a href="#contact">Contact</a>
+      <a class="pill" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume</a>
     </nav>
   </div>
 </header>
@@ -187,131 +206,201 @@ footer .wrap { padding-block: 22px 28px; display: flex; justify-content: space-b
   <div class="hero wrap">
     <div class="hero-grid">
       <div>
-        <h1>Jessica<br>Qiu</h1>
-        <p class="intro">Electrical engineering at Boston University. I build hardware for medicine: medical devices, optical imaging systems, and the circuits and firmware that run them.</p>
-        <p>I'm from New York City. I like work that pushes me outside what I already know, whether that's writing Verilog or aligning picosecond lasers, and I keep at a problem until the idea is a working thing.</p>
-        <div class="actions">
-          <a class="btn primary" href="#contact">Get in touch</a>
-          <a class="btn" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a>
+        <h1>Jessica Qiu</h1>
+        <p class="intro">I build optical sensors and imaging systems for medicine, from laser microscopes to stretchable fiber lasers.</p>
+        <div class="facts">
+          <span>B.S. Electrical Engineering, Boston University, May 2027</span>
+          <span>Minor in Biomedical Engineering</span>
+          <span>GPA 3.8</span>
         </div>
       </div>
       <img class="portrait" src="images/headshot.jpg" alt="Portrait of Jessica Qiu" width="640" height="640">
     </div>
 
-    <figure class="spectrum" aria-label="Illustrative Raman spectrum">
-      <canvas id="spec" role="img" aria-label="Raman spectrum from 600 to 3200 inverse centimeters with peaks at 1004, 1445, 1655 and 2930"></canvas>
-      <figcaption>
-        <span>Illustrative Raman spectrum of a cell: the molecular vibrations that label-free chemical imaging reads. Hover to inspect a band.</span>
-        <span class="readout" id="readout" aria-live="polite"></span>
-      </figcaption>
-    </figure>
+    <div class="instrument" aria-labelledby="inst-title">
+      <div class="inst-head">
+        <h2 id="inst-title">Stretch the fiber</h2>
+        <p>My summer 2026 sensor: a PMMA fiber laser whose mode spacing widens under stress. Drag the slider to see the spectrum change.</p>
+      </div>
+      <div class="inst-body">
+        <canvas id="spec" role="img" aria-label="Lasing spectrum from 600 to 640 nanometers. Mode spacing grows as stress increases."></canvas>
+        <div class="controls">
+          <div class="slider">
+            <label for="stress">Applied stress <output id="stressOut" for="stress">0.00 MPa</output></label>
+            <input id="stress" type="range" min="0" max="33.21" step="0.01" value="0">
+          </div>
+          <dl class="readouts">
+            <div><dt>Mode spacing (FSR)</dt><dd id="fsr" class="hot">1.942 nm</dd></div>
+            <div><dt>Change in FSR</dt><dd id="dfsr">+0.000 nm</dd></div>
+            <div><dt>Lasing modes</dt><dd id="modes">multimode</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="inst-foot">
+        <span class="pump">532 nm pump into Rhodamine 6G</span>
+        <span class="emit">Laser emission near 615 nm</span>
+        <span>Drawn from my measured FSR at 0, 6.17, 14.50, 21.06, 26.93 and 33.21 MPa</span>
+      </div>
+    </div>
   </div>
 
-  <section id="work">
+  <section id="research">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Work</h2>
-        <p class="lede">Class and team builds, from FPGA logic to wearable sensors. Each one links to a write-up with schematics, code and test results.</p>
+        <h2>Research</h2>
+        <p>Two labs, one thread: using light to measure what's happening inside materials and cells, without labels or wires.</p>
+      </div>
+
+      <article class="study">
+        <div class="where">
+          <span class="when">May – July 2026</span>
+          <strong>Nanyang Technological University, Singapore</strong>
+          <span>Centre for Bio-Devices and Bio-Informatics</span>
+          <span>Mentor: Xiyu Sun. Supervisor: Prof. Yu-Cheng Chen</span>
+        </div>
+        <div class="text">
+          <h3>Flexible fiber microlaser for finger-joint health detection</h3>
+          <p class="lead">A stress sensor made from a stretchable optical fiber. Tiny microbubble cavities in a dye-doped PMMA fiber act as lasers. When the fiber stretches, the cavities deform and the spacing between laser modes grows, so the spectrum reports the stress.</p>
+          <p>I fabricated the fibers and tuned the polymer: I compared 15k, 120k and 350k molecular-weight PMMA and chose 350k for its strength and stretch. I then characterized lasing and stress response under a laser microscope with a spectrometer, and showed how fibers along a finger could estimate joint angles for hand-mobility assessment.</p>
+          <dl class="results">
+            <div><dt>0.054 nm/MPa</dt><dd>Sensitivity</dd></div>
+            <div><dt>R² = 0.99</dt><dd>Linearity of FSR vs. stress</dd></div>
+            <div><dt>3.03 MPa</dt><dd>Limit of detection</dd></div>
+            <div><dt>14.45 µJ/mm²</dt><dd>Lasing threshold</dd></div>
+          </dl>
+          <div class="figs hand">
+            <figure>
+              <img src="images/research/fiber.jpg" alt="Microscope image of the 20 micron fiber glowing green and orange under the pump laser" loading="lazy">
+              <figcaption>The fiber lasing under the microscope. D = 20 µm.</figcaption>
+            </figure>
+            <figure>
+              <div class="plate"><img src="images/research/joint-demo.jpg" alt="Robotic hand model with the MCP, PIP and DIP joints each bent to 60 degrees" loading="lazy"></div>
+              <figcaption>Hand-model demo: bending the MCP, PIP and DIP joints to 60° shifts the FSR in the cavity nearest each joint.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </article>
+
+      <article class="study">
+        <div class="where">
+          <span class="when">Nov 2024 – present</span>
+          <strong>Ji-Xin Cheng Research Group, Boston University</strong>
+          <span>Photonics Center. Funded by BU UROP</span>
+          <span>With Yifan Zhu, Jiaze Yin and Prof. Ji-Xin Cheng</span>
+        </div>
+        <div class="text">
+          <h3>Nonlinear vibrational imaging systems for chemical-specific microscopy</h3>
+          <p class="lead">Two microscopes that see molecules by their vibrations. VREF pairs an infrared pump with a visible probe to turn vibrational energy into fluorescence. SRP detects the tiny heat a Raman excitation leaves behind, which makes weak Raman signals strong enough to image.</p>
+          <p>I engineer the beam paths for both systems around a Carbide Yb laser (1030, 800 and 1500 nm), with polarization optics, delay stages and PMTs. I characterized difference frequency generation for VREF's tunable mid-IR, measured SRP spectra in the C–D silent region, and run quantitative fluorescence image analysis on <i>C. elegans</i> to map lysosome-related organelles.</p>
+          <dl class="results">
+            <div><dt>5.7</dt><dd>Signal-to-background ratio, SRP</dd></div>
+            <div><dt>20 cm⁻¹</dt><dd>Spectral resolution (FWHM)</dd></div>
+            <div><dt>2125 cm⁻¹</dt><dd>DMSO-d₆ peak in the C–D window</dd></div>
+            <div><dt>2250 cm⁻¹</dt><dd>Acetonitrile peak</dd></div>
+          </dl>
+          <div class="figs two">
+            <figure>
+              <div class="plate"><img src="images/research/vref-beam-path.png" alt="VREF beam path: Carbide Yb laser, DFG, delay stage, objective and PMT" loading="lazy"></div>
+              <figcaption>VREF beam path, with DFG for mid-IR excitation.</figcaption>
+            </figure>
+            <figure>
+              <div class="plate"><img src="images/research/srp-beam-path.png" alt="SRP beam path: Carbide Yb laser at 1030 and 1500 nm, delay stage, objective, PMT" loading="lazy"></div>
+              <figcaption>SRP beam path, pump at 1030 nm with a 1500 nm probe line.</figcaption>
+            </figure>
+          </div>
+          <figure class="figs">
+            <div class="plate"><img src="images/research/srp-silent-region.png" alt="SRP spectra of DMSO-d6 and acetonitrile from 1900 to 2300 inverse centimeters, with a field map at 2125" loading="lazy"></div>
+            <figcaption>SRP spectra of DMSO-d₆ and acetonitrile in the silent region, with a DMSO-d₆ field map at 2125 cm⁻¹.</figcaption>
+          </figure>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Experience</h2>
+        <p>Teaching circuits and optics at BU, and software before that.</p>
+      </div>
+      <div class="jobs">
+        <div class="job">
+          <time>Sept 2026 – present</time>
+          <div><h3>Undergraduate Teaching Assistant</h3><span class="org">EC 410 Intro to Electronics, BU</span></div>
+          <p>Run weekly labs on diode, BJT and MOSFET circuits: breadboarding, oscilloscopes and multimeters. Grade lab reports and LTspice work with feedback on small-signal and frequency-domain analysis.</p>
+        </div>
+        <div class="job">
+          <time>Jan 2025 – present</time>
+          <div><h3>Undergraduate Teaching Assistant</h3><span class="org">BE/EC 556 Optical Spectroscopic Imaging, BU</span></div>
+          <p>Lead office hours for a graduate course, working through laser physics, wave optics and spectroscopic analysis with students. Grade assignments, exams and projects.</p>
+        </div>
+        <div class="job">
+          <time>June 2024 – Aug 2025</time>
+          <div><h3>Software Engineering Intern</h3><span class="org">Pulp Internet Corporation, Brooklyn</span></div>
+          <p>Built Data Stories templates and data pipelines in JavaScript, Python, pandas and Streamlit that turned transcripts into interactive visualizations. Worked on the Persona Engine with OpenAI workflows and NLP.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Projects</h2>
+        <p>Hardware builds from class and team work. Each row opens a full write-up with schematics, code and results.</p>
       </div>
 
       <article class="feature">
-        <div class="body">
-          <span class="status">In progress, Senior Design 2026–27</span>
+        <div>
+          <span class="tag">Senior Design, in progress</span>
           <h3>Shoulder dystocia training simulator</h3>
-          <p>A soft robotic birth canal and fetal shoulder model for practicing one of the hardest emergencies in delivery. Sensors watch how the trainee pulls and warn when the force or angle could injure the baby.</p>
-          <p>Six-person ECE team working with a clinical contact at Boston Medical Center. I own the sensing subsystem: force measurement, thresholds, and the path from sensors to microcontroller to the training app.</p>
+          <p>A soft robotic birth canal and fetal shoulder model for practicing a delivery emergency. Sensors watch how the trainee pulls and warn when force or angle could injure the baby. I lead the sensing subsystem on a six-person team working with a clinical contact at Boston Medical Center.</p>
         </div>
-        <dl class="specs" aria-label="Design targets">
-          <div><dt>150 N</dt><dd>Excessive-force warning threshold, set from published delivery studies</dd></div>
-          <div><dt>25–45°</dt><dd>Safe traction angle below horizontal, per ACOG guidance</dd></div>
-          <div><dt>50 Hz</dt><dd>Sensor sampling rate for real-time feedback</dd></div>
+        <dl>
+          <div><dt>150 N</dt><dd>Excessive-force warning threshold</dd></div>
+          <div><dt>25–45°</dt><dd>Safe traction angle below horizontal</dd></div>
+          <div><dt>50 Hz</dt><dd>Sensor sampling for real-time feedback</dd></div>
         </dl>
       </article>
 
-      <div class="builds">
-        <a class="build" href="projects-html/project-biosensor.html">
-          <div class="shot"><img src="images/thumbs/biosensor.jpg" alt="White 3D-printed wrist sensor enclosure with OLED window" loading="lazy"></div>
-          <span class="meta">Embedded systems, Oct–Dec 2024</span>
-          <h3>Biometric sensor for tennis</h3>
-          <p>Wrist wearable that tracks swing acceleration and rotation and buzzes when you hit your target range. OLED menu, rotary encoder, rechargeable Li-ion.</p>
-          <div class="figures"><span><b>±8 g</b> accel</span><span><b>±1000 °/s</b> gyro</span><span>Arduino Nano 33 IoT, MPU-6050</span></div>
+      <div class="rows">
+        <a class="row" href="projects-html/project-biosensor.html">
+          <img src="images/thumbs/biosensor.jpg" alt="3D-printed wrist sensor enclosure" loading="lazy">
+          <div><h3>Biometric sensor for tennis</h3><p>Led a 4-person team on a wrist wearable that tracks swing acceleration and rotation and buzzes at target thresholds. I designed the sensor, power and haptic circuits and the firmware, calibrated to a ±5% accuracy target.</p></div>
+          <span class="go">Write-up</span>
         </a>
-        <a class="build" href="projects-html/project-snake.html">
-          <div class="shot"><img src="images/thumbs/snake.jpg" alt="Monitor showing the FPGA Snake game" loading="lazy"></div>
-          <span class="meta">Digital design, Nov–Dec 2024</span>
-          <h3>Snake on an FPGA</h3>
-          <p>Snake written in Verilog with its own VGA controller, FSM game logic, scoring and three difficulty levels.</p>
-          <div class="figures"><span><b>640×480</b> at <b>60 Hz</b></span><span>Verilog, VGA timing, debouncing</span></div>
+        <a class="row" href="projects-html/project-snake.html">
+          <img src="images/thumbs/snake.jpg" alt="Monitor showing the FPGA Snake game" loading="lazy">
+          <div><h3>Snake on an FPGA</h3><p>Verilog game with its own 640×480 at 60 Hz VGA controller, FSM game logic, scoring and three difficulty levels.</p></div>
+          <span class="go">Write-up</span>
         </a>
-        <a class="build" href="projects-html/project-temp-monitor.html">
-          <div class="shot"><img src="images/thumbs/temp.jpg" alt="Enclosure with blue LCD reading Temperature(F): 82.62" loading="lazy"></div>
-          <span class="meta">Circuits and firmware</span>
-          <h3>Temperature monitor</h3>
-          <p>Portable room monitor with an LCD readout and LED and buzzer alerts when temperature leaves a set range. Circuit planned in Tinkercad, enclosure in Onshape.</p>
-          <div class="figures"><span>TMP36 sensor</span><span><b>16×2</b> I²C LCD</span><span>°F / °C</span></div>
+        <a class="row" href="projects-html/project-temp-monitor.html">
+          <img src="images/thumbs/temp.jpg" alt="Enclosure with an LCD showing a temperature reading" loading="lazy">
+          <div><h3>Temperature monitor</h3><p>TMP36 sensor, I²C LCD readout, and LED and buzzer alerts outside a set range. Circuit planned in Tinkercad, enclosure in Onshape.</p></div>
+          <span class="go">Write-up</span>
         </a>
-        <a class="build" href="projects-html/project-truss.html">
-          <div class="shot">
-            <svg viewBox="0 0 400 300" role="img" aria-label="Line drawing of a Warren truss under a center load">
-              <rect width="400" height="300" fill="var(--panel)"/>
-              <g stroke="var(--ink)" stroke-width="3" fill="none" stroke-linejoin="round">
-                <path d="M40 200 L360 200 M93 120 L307 120 M40 200 L93 120 L147 200 L200 120 L253 200 L307 120 L360 200"/>
-              </g>
-              <g fill="var(--accent)">
-                <circle cx="40" cy="200" r="6"/><circle cx="147" cy="200" r="6"/><circle cx="253" cy="200" r="6"/><circle cx="360" cy="200" r="6"/>
-                <circle cx="93" cy="120" r="6"/><circle cx="200" cy="120" r="6"/><circle cx="307" cy="120" r="6"/>
-              </g>
-              <path d="M28 222 L52 222 L40 204 Z" fill="none" stroke="var(--muted)" stroke-width="2"/>
-              <circle cx="360" cy="212" r="6" fill="none" stroke="var(--muted)" stroke-width="2"/>
-              <path d="M147 210 L147 250 M139 240 L147 252 L155 240" stroke="var(--accent)" stroke-width="3" fill="none"/>
-              <text x="160" y="248" font-family="IBM Plex Mono, monospace" font-size="15" fill="var(--muted)">load</text>
-              <text x="40" y="275" font-family="IBM Plex Mono, monospace" font-size="15" fill="var(--muted)">span 31 in</text>
-            </svg>
-          </div>
-          <span class="meta">Structural analysis, Feb–May 2025</span>
-          <h3>Acrylic Warren truss</h3>
-          <p>Measured acrylic buckling in the lab, then wrote a MATLAB solver for member forces and failure load and iterated the geometry before building and testing.</p>
-          <div class="figures"><span><b>65 ± 1.35 oz</b> predicted max load</span><span><b>0.310 oz/$</b> load to cost</span></div>
+        <a class="row" href="projects-html/project-truss.html">
+          <svg viewBox="0 0 400 300" role="img" aria-label="Warren truss drawing">
+            <rect width="400" height="300" fill="#ffffff"/>
+            <path d="M40 200 L360 200 M93 120 L307 120 M40 200 L93 120 L147 200 L200 120 L253 200 L307 120 L360 200" stroke="#151834" stroke-width="5" fill="none" stroke-linejoin="round"/>
+            <g fill="#d43f16"><circle cx="40" cy="200" r="8"/><circle cx="147" cy="200" r="8"/><circle cx="253" cy="200" r="8"/><circle cx="360" cy="200" r="8"/><circle cx="93" cy="120" r="8"/><circle cx="200" cy="120" r="8"/><circle cx="307" cy="120" r="8"/></g>
+          </svg>
+          <div><h3>Acrylic Warren truss</h3><p>Lab-measured acrylic buckling, a MATLAB solver for member forces and failure load, and a final design predicted to hold 65 ± 1.35 oz.</p></div>
+          <span class="go">Write-up</span>
         </a>
-      </div>
-
-      <div class="more" aria-label="Smaller builds">
-        <div><strong>MATLAB database tool</strong><span>Searches a dataset, exports results to spreadsheets, and compares ML predictions against actual outcomes.</span></div>
-        <div><strong>Wooden nightstand</strong><span>Modeled in Onshape, CNC machined, with an engraved logo. Built for a high load.</span></div>
       </div>
     </div>
   </section>
 
-  <section id="research">
-    <div class="wrap research">
-      <div>
-        <h2>Research</h2>
-        <p class="where">Undergraduate researcher, Cheng Lab, Boston University. 2025 to present.</p>
-      </div>
-      <div class="body">
-        <h3>Nonlinear vibrational imaging</h3>
-        <p style="margin-top:14px">I work with two postdocs on two label-free chemical imaging systems: Vibrational Relaxation Energy Fluorescence (VREF) and Stimulated Raman Photothermal (SRP) microscopy. Both read a molecule's vibrations directly, so samples don't need dyes or stains.</p>
-        <p>My work covers mid-IR generation by difference frequency generation, pump–probe alignment with picosecond lasers, and detecting the vibrational signal. I've run spectroscopic validation on reference samples and analyzed the data in MATLAB and Python.</p>
-        <ul class="terms">
-          <li>Difference frequency generation</li>
-          <li>Pump–probe alignment</li>
-          <li>Picosecond lasers</li>
-          <li>Spectroscopy</li>
-          <li>MATLAB and Python analysis</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="toolkit">
+  <section id="skills">
     <div class="wrap">
-      <div class="sec-head"><h2>Toolkit</h2></div>
-      <div class="toolkit">
-        <div><h3>Hardware</h3><ul><li>Circuit design and soldering</li><li>Arduino and microcontrollers</li><li>FPGA design</li><li>Sensors over I²C</li><li>Optical alignment</li></ul></div>
-        <div><h3>Code</h3><ul><li>MATLAB</li><li>Python</li><li>Verilog</li><li>Arduino C++</li></ul></div>
-        <div><h3>Design and fabrication</h3><ul><li>Onshape CAD</li><li>Tinkercad</li><li>3D printing</li><li>CNC machining</li></ul></div>
-        <div><h3>Coursework</h3><ul><li>Power electronics</li><li>Electromagnetics</li><li>Digital signal processing</li><li>Optical imaging</li></ul></div>
+      <div class="sec-head"><h2>Skills</h2></div>
+      <div class="skills">
+        <div><h3>Optics and imaging</h3><ul><li>Optical alignment</li><li>VREF and SRP microscopy</li><li>Mid-IR photothermal imaging</li><li>Fluorescence microscopy</li><li>Yb lasers, PMTs, polarization optics</li></ul></div>
+        <div><h3>Electronics</h3><ul><li>Oscilloscopes and function generators</li><li>PCB design in KiCad</li><li>Soldering</li><li>Microcontrollers</li><li>FPGA design in Verilog</li></ul></div>
+        <div><h3>Software</h3><ul><li>Python and MATLAB</li><li>JavaScript</li><li>LaTeX</li><li>AutoCAD, Revit, Onshape</li></ul></div>
       </div>
+      <p class="credit" style="margin-top:32px">Also: Academic and Professional Development Chair, Theta Tau. Electrical and Life Detection team, BU Mars Rover. Mentor, BU Society of Asian Scientists and Engineers.</p>
     </div>
   </section>
 
@@ -319,122 +408,121 @@ footer .wrap { padding-block: 22px 28px; display: flex; justify-content: space-b
     <div class="wrap">
       <div class="sec-head">
         <h2>Contact</h2>
-        <p class="lede">I'm open to engineering roles, internships and collaborations. Email is the fastest way to reach me.</p>
+        <p>I'm looking for roles in optics, medical devices and hardware. Email is the fastest way to reach me.</p>
       </div>
-      <a class="big" href="mailto:jqiu41@gmail.com" id="email">jqiu41@gmail.com</a>
-      <div class="actions">
-        <button class="btn primary" type="button" id="copy">Copy email</button>
+      <a class="big" id="email" href="mailto:jqiu41@gmail.com">jqiu41@gmail.com</a>
+      <div class="btns">
+        <button class="btn solid" type="button" id="copy">Copy email</button>
         <a class="btn" href="https://www.linkedin.com/in/jessica-qiu1/" target="_blank" rel="noopener">LinkedIn</a>
         <a class="btn" href="https://github.com/JessicaQiu0" target="_blank" rel="noopener">GitHub</a>
         <a class="btn" href="JessicaQiu_Resume.pdf" target="_blank" rel="noopener">Resume</a>
-        <span class="copied" id="copied" aria-live="polite"></span>
+        <span class="note" id="note" aria-live="polite"></span>
       </div>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap"><span>© <span id="year">2026</span> Jessica Qiu</span><span>Boston, MA</span></div>
-</footer>
+<footer><div class="wrap"><span>© <span id="year">2026</span> Jessica Qiu</span><span>Boston University, College of Engineering</span></div></footer>
 
 <script>
 (() => {
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Copy email
-  const copyBtn = document.getElementById('copy'), copied = document.getElementById('copied');
-  copyBtn.addEventListener('click', () => {
-    const addr = 'jqiu41@gmail.com';
-    const done = () => { copied.textContent = 'Email copied'; setTimeout(() => copied.textContent = '', 2400); };
-    try {
-      navigator.clipboard.writeText(addr).then(done, () => selectEmail());
-    } catch (e) { selectEmail(); }
-    function selectEmail() {
-      const r = document.createRange(); r.selectNodeContents(document.getElementById('email'));
-      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
-      copied.textContent = 'Selected, press Ctrl+C or ⌘C';
-    }
+  const copy = document.getElementById('copy'), note = document.getElementById('note');
+  copy.addEventListener('click', () => {
+    const sel = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('email')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); note.textContent = 'Selected. Press Ctrl+C or ⌘C'; };
+    try { navigator.clipboard.writeText('jqiu41@gmail.com').then(() => { note.textContent = 'Email copied'; setTimeout(() => note.textContent = '', 2400); }, sel); } catch (e) { sel(); }
   });
 
-  // Raman spectrum (illustrative sum of Lorentzian bands)
-  const bands = [
-    [785, .18, 12, 'DNA/RNA ring'], [1004, .62, 6, 'phenylalanine'], [1090, .16, 18, ''],
-    [1250, .26, 28, 'amide III'], [1335, .24, 18, ''], [1445, .58, 20, 'CH₂ bend'],
-    [1655, .5, 24, 'amide I'], [2850, .62, 16, 'CH₂ stretch'], [2885, .52, 16, ''],
-    [2930, 1, 26, 'CH₃ stretch'], [2965, .45, 14, ''], [3060, .14, 18, '']
-  ];
-  const named = bands.filter(b => b[3]);
-  const labelled = [1004, 1445, 1655, 2930];
-  const X0 = 600, X1 = 3200;
-  const f = x => 0.04 + bands.reduce((s, [c, a, w]) => s + a * (w * w) / ((x - c) ** 2 + w * w), 0);
-  const cv = document.getElementById('spec'), ctx = cv.getContext('2d'), out = document.getElementById('readout');
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let W, H, pad, progress = reduce ? 1 : 0, hoverX = null, ymax;
+  // Measured FSR (nm) vs stress (MPa); 33.21 MPa is single-mode.
+  const pts = [[0, 1.942], [6.17, 2.239], [14.50, 2.687], [21.06, 2.987], [26.93, 3.436], [33.21, 3.436 + 0.054 * (33.21 - 26.93)]]; // last span follows the 0.054 nm/MPa fit
+  const fsrAt = s => { for (let i = 1; i < pts.length; i++) if (s <= pts[i][0]) { const [a, fa] = pts[i - 1], [b, fb] = pts[i]; return fa + (fb - fa) * (s - a) / (b - a); } return pts.at(-1)[1]; };
 
-  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-  function size() {
-    const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1;
-    W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0);
-    pad = { l: 2, r: 2, t: 26, b: 22 };
-    ymax = 0; for (let x = X0; x <= X1; x += 2) ymax = Math.max(ymax, f(x));
-  }
-  const sx = x => pad.l + (x - X0) / (X1 - X0) * (W - pad.l - pad.r);
-  const sy = y => H - pad.b - y / ymax * (H - pad.t - pad.b);
-  const ix = px => X0 + (px - pad.l) / (W - pad.l - pad.r) * (X1 - X0);
+  const cv = document.getElementById('spec'), ctx = cv.getContext('2d');
+  const slider = document.getElementById('stress');
+  const o = { s: document.getElementById('stressOut'), f: document.getElementById('fsr'), d: document.getElementById('dfsr'), m: document.getElementById('modes') };
+  const L0 = 600, L1 = 640, C = 618;
+  let W, H, pad = { l: 4, r: 4, t: 14, b: 26 }, stress = 0, intro = 1;
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
-  function trace(upTo) {
-    ctx.beginPath();
-    for (let x = X0; x <= upTo; x += 1.5) { const p = [sx(x), sy(f(x))]; x === X0 ? ctx.moveTo(...p) : ctx.lineTo(...p); }
+  function size() { const r = cv.getBoundingClientRect(), d = devicePixelRatio || 1; W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
+  const sx = l => pad.l + (l - L0) / (L1 - L0) * (W - pad.l - pad.r);
+  const sy = v => H - pad.b - v * (H - pad.t - pad.b);
+
+  function spectrum(s) {
+    const fsr = fsrAt(s), single = s >= 32.5;
+    // gain envelope narrows as stress rises, so fewer modes clear threshold
+    const env = 7.2 - 4.4 * (s / 33.21);
+    const modes = [];
+    const shift = 0.35 * s / 33.21;
+    for (let k = -8; k <= 8; k++) {
+      const l = C + shift + k * fsr;
+      let a = Math.exp(-((l - C) ** 2) / (2 * env * env));
+      a *= 0.86 + 0.14 * Math.cos(k * 1.7);
+      if (single) a = k === 0 ? 1 : 0;
+      if (a > 0.12 && l > L0 && l < L1) modes.push([l, a]);
+    }
+    return { fsr, modes, single };
   }
   function draw() {
-    const ink = css('--ink'), muted = css('--muted'), accent = css('--accent'), ghost = css('--trace-ghost'), rule = css('--rule');
+    const muted = css('--muted'), rule = css('--rule'), emit = css('--emit'), ink = css('--ink');
+    const { fsr, modes, single } = spectrum(stress);
     ctx.clearRect(0, 0, W, H);
-    // axis
-    ctx.strokeStyle = rule; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad.l, H - pad.b + .5); ctx.lineTo(W - pad.r, H - pad.b + .5); ctx.stroke();
-    ctx.fillStyle = muted; ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.textBaseline = 'top';
-    const step = W < 520 ? 800 : 400;
-    for (let t = 800; t <= 3200; t += step) {
-      const p = sx(t); ctx.fillRect(p, H - pad.b, 1, 4);
-      ctx.textAlign = t === 3200 ? 'right' : 'center'; ctx.fillText(t === 3200 ? '3200 cm⁻¹' : String(t), p, H - pad.b + 7);
+    ctx.strokeStyle = rule; ctx.lineWidth = 1;
+    for (let g = 0.25; g < 1.01; g += 0.25) { ctx.beginPath(); ctx.moveTo(pad.l, sy(g) + .5); ctx.lineTo(W - pad.r, sy(g) + .5); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(pad.l, H - pad.b + .5); ctx.lineTo(W - pad.r, H - pad.b + .5); ctx.strokeStyle = muted; ctx.stroke();
+    ctx.fillStyle = muted; ctx.font = '500 11px "JetBrains Mono", monospace'; ctx.textBaseline = 'top';
+    for (let t = 600; t <= 640; t += (W < 480 ? 10 : 5)) { const p = sx(t); ctx.fillRect(p, H - pad.b, 1, 4); ctx.textAlign = t === 600 ? 'left' : t === 640 ? 'right' : 'center'; ctx.fillText(t === 640 ? '640 nm' : t, p, H - pad.b + 8); }
+    // spectrum as a continuous trace of narrow Lorentzian lines
+    const w = 0.09;
+    ctx.beginPath();
+    for (let px = pad.l; px <= W - pad.r; px += 0.5) {
+      const l = L0 + (px - pad.l) / (W - pad.l - pad.r) * (L1 - L0);
+      let v = 0.015 + 0.02 * Math.exp(-((l - C) ** 2) / 60);
+      for (const [c, a] of modes) v += a * intro * w * w / ((l - c) ** 2 + w * w);
+      v = Math.min(v, 1);
+      px === pad.l ? ctx.moveTo(px, sy(v)) : ctx.lineTo(px, sy(v));
     }
-    // ghost + live trace
-    trace(X1); ctx.strokeStyle = ghost; ctx.lineWidth = 1.5; ctx.stroke();
-    const upTo = X0 + (X1 - X0) * progress;
-    trace(upTo); ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
-    // labels
-    ctx.textBaseline = 'bottom'; ctx.textAlign = 'center';
-    ctx.font = '500 11px "IBM Plex Mono", monospace';
-    for (const c of labelled) {
-      if (c > upTo) continue;
-      if (W < 520 && c === 1445) continue;
-      ctx.fillStyle = ink; ctx.fillText(String(c), sx(c), sy(f(c)) - 6);
-    }
-    // hover
-    if (hoverX !== null) {
-      const x = ix(hoverX), p = sx(x);
-      ctx.strokeStyle = muted; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(p + .5, pad.t - 10); ctx.lineTo(p + .5, H - pad.b); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(p, sy(f(x)), 4, 0, 7); ctx.fill();
+    ctx.strokeStyle = emit; ctx.lineWidth = 1.6; ctx.lineJoin = 'round';
+    ctx.shadowColor = emit; ctx.shadowBlur = getComputedStyle(document.documentElement).colorScheme === 'dark' ? 8 : 0;
+    ctx.stroke(); ctx.shadowBlur = 0;
+    // FSR bracket between two strongest neighbours
+    if (!single && modes.length > 1 && intro > .9) {
+      const sorted = modes.slice().sort((a, b) => Math.abs(a[0] - C) - Math.abs(b[0] - C));
+      const [a, b] = [sorted[0], sorted[1]].sort((p, q) => p[0] - q[0]);
+      const y = sy(Math.max(a[1], b[1])) - 2, top = Math.max(pad.t + 2, y - 6);
+      ctx.strokeStyle = ink; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(sx(a[0]), top + 6); ctx.lineTo(sx(a[0]), top); ctx.lineTo(sx(b[0]), top); ctx.lineTo(sx(b[0]), top + 6); ctx.stroke();
+      ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText('FSR ' + fsr.toFixed(3) + ' nm', sx(b[0]) + 8, top + 2);
+    } else if (single) {
+      ctx.fillStyle = ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText('single mode', sx(modes[0][0]) + 10, pad.t + 8);
     }
   }
-  function onMove(e) {
-    const r = cv.getBoundingClientRect(); hoverX = Math.min(Math.max(e.clientX - r.left, pad.l), W - pad.r);
-    const x = ix(hoverX); const near = named.reduce((b, n) => Math.abs(n[0] - x) < Math.abs(b[0] - x) ? n : b);
-    out.textContent = Math.round(x) + ' cm⁻¹' + (Math.abs(near[0] - x) < 35 ? '  ' + near[3] + ' (' + near[0] + ')' : (x > 1800 && x < 2700 ? '  silent region' : ''));
+  function update() {
+    stress = +slider.value;
+    const { fsr, modes, single } = spectrum(stress);
+    o.s.textContent = stress.toFixed(2) + ' MPa';
+    o.f.textContent = single ? '—' : fsr.toFixed(3) + ' nm';
+    o.d.textContent = single ? 'single mode' : '+' + (fsr - 1.942).toFixed(3) + ' nm';
+    o.m.textContent = single ? '1 (single mode)' : modes.length;
     draw();
   }
-  cv.addEventListener('pointermove', onMove);
-  cv.addEventListener('pointerleave', () => { hoverX = null; out.textContent = ''; draw(); });
+  slider.addEventListener('input', update);
   addEventListener('resize', () => { size(); draw(); });
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', draw);
   new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  size(); update();
+  document.fonts?.ready.then(draw);
 
-  size(); draw();
-  if (!reduce) {
-    const t0 = performance.now(), dur = 1800;
-    const tick = now => { progress = Math.min(1, (now - t0) / dur); progress = 1 - (1 - progress) ** 3; draw(); if (progress < 1) requestAnimationFrame(tick); };
+  // one-time intro: pump ramps above threshold, modes rise out of the fluorescence floor
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const t0 = performance.now();
+    intro = 0.35; draw();
+    const tick = n => { const p = Math.min(1, (n - t0) / 1400); intro = 0.35 + 0.65 * (1 - (1 - p) ** 3); draw(); if (p < 1) requestAnimationFrame(tick); };
     requestAnimationFrame(tick);
   }
-  document.fonts?.ready.then(() => draw());
 })();
 </script>
 

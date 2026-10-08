@@ -1,24 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono&display=swap");
 /* Matches the palette in index.html */
 :root {
-  --bg: #f3f5f7; --surface: #ffffff; --card: #ffffff; --text: #15202b; --muted: #56626f;
-  --brand: #b8285f; --brand-2: #b8285f;
-  --glow: 0 0 0 1px #b8285f; --radius: 10px; --shadow: none;
+  --bg: #0f1226; --surface: #171b37; --card: #171b37; --text: #eceaf5; --muted: #a4a7c4;
+  --brand: #ff6b3d; --brand-2: #ff6b3d; --glow: 0 0 0 1px #ff6b3d; --radius: 8px; --shadow: none;
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --bg: #0e151c; --surface: #151f29; --card: #151f29; --text: #e4e9ee; --muted: #97a3af;
-    --brand: #f17aa5; --brand-2: #f17aa5; --glow: 0 0 0 1px #f17aa5;
+    --bg: #f5f6fb; --surface: #ffffff; --card: #ffffff; --text: #151834; --muted: #565a7a;
+    --brand: #d43f16; --brand-2: #d43f16; --glow: 0 0 0 1px #d43f16;
   }
 }
-h1, h2, h3 { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.01em; }
-pre, code { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+h1, h2 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+pre, code { font-family: "JetBrains Mono", ui-monospace, monospace; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
+  font-family: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif;
   color: var(--text);
   background: var(--bg);
   line-height: 1.6;
